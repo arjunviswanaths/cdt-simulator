@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign Digital Twin - Mock Simulator</title>
+<style>:root{--purple:#4A2B6B;--violet:#7B3FE4;--azure:#3BA3C6;--magenta:#C8288C;--red:#E0475B;--amber:#E39B22;--green:#1F9D6B;
+--bg:#F7F5FC;--card:#FFFFFF;--line:#E4DEF0;--ink:#231A33;--muted:#6B6280;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Helvetica Neue",Arial,"Liberation Sans",sans-serif;font-size:16px;line-height:1.45}
+.wrap{max-width:1560px;margin:0 auto;padding:0 28px}
+header.top{background:#fff;border-bottom:4px solid var(--purple)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:14px;gap:20px}
+h1{margin:0;font-size:30px;color:var(--purple);letter-spacing:-.3px;font-weight:700}
+.sub{color:var(--muted);font-size:16px;margin-top:2px}
+.brandtag{text-align:right;font-size:15px;color:var(--purple);font-weight:600}
+.mockpill{display:inline-block;margin-top:6px;background:#FDEBF5;color:var(--magenta);border:1px solid #F3C2DF;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;letter-spacing:.4px}
+nav.steps{position:sticky;top:0;z-index:20;background:rgba(247,245,252,.96);backdrop-filter:blur(4px);border-bottom:1px solid var(--line)}
+nav.steps .wrap{display:flex;gap:6px;padding-top:8px;padding-bottom:8px;flex-wrap:wrap}
+nav.steps a{color:var(--purple);text-decoration:none;font-size:14px;font-weight:600;padding:6px 12px;border-radius:8px;border:1px solid transparent}
+nav.steps a:hover{background:#fff;border-color:var(--line)}
+nav.steps a b{display:inline-block;background:var(--purple);color:#fff;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:12px;margin-right:6px}
+section.card{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:22px 0;padding:22px 26px;box-shadow:0 1px 2px rgba(74,43,107,.05)}
+section h2{margin:0 0 4px;font-size:24px;color:var(--purple);display:flex;align-items:center;gap:12px}
+section h2 .num{background:var(--violet);color:#fff;border-radius:10px;min-width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;font-size:18px}
+.lead{color:var(--muted);margin:0 0 16px;font-size:16px}
+h3{color:var(--purple);font-size:18px;margin:18px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:12px 0 16px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:#FBFAFE}
+.kpi .l{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600}
+.kpi .v{font-size:34px;font-weight:700;color:var(--purple);line-height:1.15;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:14px;color:var(--muted)}
+.kpi.red .v{color:var(--red)} .kpi.red{border-color:#F5C9CF;background:#FFF7F8}
+.kpi.green .v{color:var(--green)} .kpi.green{border-color:#C7E9DA;background:#F5FCF9}
+.kpi.violet .v{color:var(--violet)}
+.svgbox{width:100%;overflow-x:auto}
+.svgbox svg{display:block;width:100%;height:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th{background:#F1ECFA;color:var(--purple);text-align:left;font-weight:700;padding:8px 10px;border-bottom:2px solid #DCD2EE;font-size:14px}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{display:inline-block;border-radius:6px;padding:1px 7px;font-size:12.5px;font-weight:700;color:#fff;margin:1px 3px 1px 0;white-space:nowrap}
+.tid{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--violet);color:#fff;font-weight:700}
+.tid.nc{background:var(--azure)}
+.pre{font-size:13px;color:var(--muted)} .pre b{color:var(--ink);font-weight:600}
+.grid2{display:grid;grid-template-columns:1.1fr 1fr;gap:22px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:1250px){.grid2,.grid2b{grid-template-columns:1fr}}
+.scen{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin:8px 0 14px}
+@media (max-width:1300px){.scen{grid-template-columns:repeat(4,1fr)}}
+.scen button{font:inherit;text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink);transition:border-color .15s}
+.scen button:hover{border-color:#C9B8EA}
+.scen button.on{border-color:var(--red);background:#FFF6F7;box-shadow:0 0 0 3px rgba(224,71,91,.12)}
+.scen .code{font-weight:800;color:var(--red);font-size:15px}
+.scen .t{font-weight:700;font-size:15px;line-height:1.25;margin:2px 0}
+.scen .m{font-size:12.5px;color:var(--muted)}
+.event{border-left:5px solid var(--red);background:#FFF8F9;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:16px}
+.event b{color:var(--red)}
+.custom{display:none;gap:14px;align-items:end;flex-wrap:wrap;background:#F6F2FD;border:1px dashed #C9B8EA;border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.custom.on{display:flex}
+.custom label{font-size:13px;font-weight:700;color:var(--purple);display:flex;flex-direction:column;gap:4px}
+.custom select,.custom input{font:inherit;font-size:15px;padding:6px 8px;border:1px solid #CFC3E6;border-radius:8px;background:#fff;min-width:120px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:9px 16px;cursor:pointer;background:var(--violet);color:#fff;font-size:15px}
+.btn.ghost{background:#fff;color:var(--purple);border:1.5px solid #CFC3E6}
+.btn.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+.cascade li{margin:4px 0;font-size:15.5px}
+.cascade{padding-left:0;list-style:none;margin:0}
+.cascade .sh{color:var(--red);font-weight:700;font-variant-numeric:tabular-nums}
+.answer{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:14px;margin:6px 0 16px}
+@media (max-width:1250px){.answer{grid-template-columns:1fr 1fr}}
+.ans{border-radius:12px;padding:12px 16px;border:1px solid var(--line);background:#FBFAFE}
+.ans .q{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ans .a{font-size:17px;font-weight:600;color:var(--ink);margin-top:3px}
+.ans.yes{background:var(--purple);border-color:var(--purple);color:#fff;min-width:170px;display:flex;flex-direction:column;justify-content:center}
+.ans.yes .q{color:#D9CCF2} .ans.yes .big{font-size:40px;font-weight:800;line-height:1}
+.ans.yes .a{color:#fff}
+.sortbar{display:flex;gap:8px;align-items:center;margin:4px 0 12px;flex-wrap:wrap}
+.sortbar span{font-size:14px;color:var(--muted);font-weight:600;margin-right:4px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+@media (max-width:1100px){.cards{grid-template-columns:1fr}}
+.ocard{border:2px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;background:#fff;position:relative}
+.ocard:hover{border-color:#C9B8EA}
+.ocard.sel{border-color:var(--violet);box-shadow:0 0 0 3px rgba(123,63,228,.15)}
+.ocard .rk{font-size:13px;font-weight:800;color:var(--violet)}
+.ocard .nm{font-weight:700;font-size:16.5px;margin:4px 0 10px;line-height:1.3;min-height:43px}
+.ocard .mx{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.ocard .mx div{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.ocard .mx b{display:block;font-size:24px;color:var(--purple);text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
+.ocard .mx b.g{color:var(--green)} .ocard .mx b.r{color:var(--red)}
+.badge{position:absolute;top:12px;right:12px;background:var(--magenta);color:#fff;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;letter-spacing:.4px}
+.risk{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px}
+.risk.Low{background:#E3F5EC;color:#137a51}.risk.Medium{background:#FFF1D9;color:#9a6200}.risk.High{background:#FDE3E6;color:#B42335}
+.rd{font-size:13px;font-weight:700}
+.rd .ok{color:var(--green)} .rd .fl{color:var(--amber)} .rd .bl{color:var(--red)}
+tr.opt{cursor:pointer} tr.opt:hover td{background:#FAF7FF} tr.opt.sel td{background:#F1EBFE} tr.opt.blk td{color:#9a93a8}
+.detail{border:2px solid var(--violet);border-radius:14px;padding:16px 18px;margin-top:16px;background:#FDFCFF}
+.detail h3{margin-top:0}
+.checklist{list-style:none;padding:0;margin:0}
+.checklist li{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px;align-items:flex-start}
+.checklist .ic{flex:0 0 26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
+.ic.ready{background:var(--green)} .ic.lead{background:var(--amber)} .ic.blocked{background:var(--red)}
+.checklist .tx{font-size:13.5px;color:var(--muted)}
+.flow{display:flex;gap:0;margin:10px 0 14px}
+.flow .st{flex:1;position:relative;background:#EEE8F8;color:var(--purple);padding:16px 16px 16px 30px;font-weight:700;font-size:16px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%,18px 50%);margin-right:-10px;transition:background .3s,color .3s;min-height:74px;display:flex;flex-direction:column;justify-content:center}
+.flow .st:first-child{clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%);padding-left:18px}
+.flow .st small{display:block;font-weight:500;font-size:13px;color:var(--muted)}
+.flow .st.done{background:var(--purple);color:#fff} .flow .st.done small{color:#D9CCF2}
+.flow .st.cur{background:var(--magenta);color:#fff} .flow .st.cur small{color:#FBD6EA}
+.lesson{border-left:5px solid var(--magenta);background:#FDF3F9;border-radius:8px;padding:12px 16px;font-size:16px;display:none}
+.lesson.on{display:block}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:1150px){.how{grid-template-columns:1fr 1fr}}
+.how div{border:1px solid var(--line);border-radius:12px;padding:12px 16px;background:#FBFAFE}
+.how b{color:var(--violet);display:block;margin-bottom:4px;font-size:16px}
+.how p{margin:0;font-size:15px}
+code{background:#F1ECFA;color:var(--purple);padding:1px 5px;border-radius:5px;font-size:14px}
+footer{color:var(--muted);font-size:13.5px;text-align:center;padding:10px 0 30px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);margin:6px 0 2px}
+.legend i{display:inline-block;width:22px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.gates{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 0}
+.gates div{border:1px dashed var(--amber);background:#FFF9EE;border-radius:8px;padding:6px 10px;font-size:14px}
+.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div><h1>Campaign Digital Twin - Mock Simulator</h1>
+  <div class="sub">Subsea tie-back | illustrative data</div></div>
+  <div class="brandtag">TechnipFMC | Internal<br><span class="mockpill">ALL DATA MOCK / ILLUSTRATIVE</span></div>
+</div></header>
+<nav class="steps"><div class="wrap">
+  <a href="#s-scope"><b>1</b>Scope &amp; network</a>
+  <a href="#s-base"><b>2</b>Baseline plan</a>
+  <a href="#s-impact"><b>3</b>Failure &amp; impact</a>
+  <a href="#s-options"><b>4</b>Do we have a solution?</a>
+  <a href="#s-flow"><b>5</b>Decision flow</a>
+  <a href="#s-how"><b>6</b>How it works</a>
+</div></nav>
+<main class="wrap">
+
+<section class="card" id="s-scope">
+  <h2><span class="num">1</span>Scope &amp; dependency network</h2>
+  <p class="lead">Mock offshore subsea tie-back: 18 km 12&Prime; flowline, 140 t manifold, umbilical, spools, tie-in to an existing FPSO host. Critical path is highlighted; the dashed link is the <b>technical</b> C&rarr;E logic (precom can start after lay if readiness checks pass).</p>
+  <div class="svgbox" id="network"></div>
+  <div class="legend">
+    <span><i style="background:#7B3FE4"></i>Critical path</span><span><i style="background:#3BA3C6"></i>Has float</span>
+    <span><i style="background:repeating-linear-gradient(90deg,#3BA3C6 0 6px,transparent 6px 10px)"></i>Technical link (not in baseline sequence)</span>
+    <span><i style="background:#B9AEC9"></i>Other logic (grey D&#8594;F: manifold installed before tie-in)</span><span><i style="background:#7B3FE4;opacity:.5"></i><em>planned</em> = preferential sequence, not a physical constraint</span>
+  </div>
+  <h3>Task plan, vessels and prerequisites</h3>
+  <div id="tasktable"></div>
+  <div class="gates" id="gates"></div>
+</section>
+
+<section class="card" id="s-base">
+  <h2><span class="num">2</span>Baseline schedule &amp; vessel spread cost</h2>
+  <p class="lead">Each vessel is on hire from its first task to its last task: idle/standby days inside that window are paid at full day rate (hatched).</p>
+  <div class="kpis" id="basekpis"></div>
+  <div class="svgbox" id="basegantt"></div>
+</section>
+
+<section class="card" id="s-impact">
+  <h2><span class="num">3</span>Failure scenario &amp; cascade impact</h2>
+  <p class="lead">Select a failure event. The twin re-runs the critical path with the delay and measures Value Destruction (VD) = extra vessel days &times; day rate + CNQ.</p>
+  <div class="scen" id="scenbtns"></div>
+  <div class="custom" id="custom">
+    <label>Task<select id="cTask"></select></label>
+    <label>Delay (days)<input id="cDelay" type="number" min="1" max="20" value="5"></label>
+    <label>Affected vessel<select id="cVessel"></select></label>
+    <label>Cause<select id="cType"><option value="equipment">Equipment breakdown</option><option value="weather">Weather / manpower</option></select></label>
+    <label>CNQ allowance ($k)<input id="cCnq" type="number" min="0" step="10" value="50"></label>
+    <button class="btn" id="cRun">Run scenario</button>
+  </div>
+  <div class="event" id="eventbox"></div>
+  <div class="kpis" id="impactkpis"></div>
+  <div class="svgbox" id="impactgantt"></div>
+  <div class="grid2b" style="margin-top:14px">
+    <div><h3>Cascade: what moves</h3><ul class="cascade" id="cascade"></ul></div>
+    <div><h3>Value Destruction by vessel</h3><div id="vdtable"></div></div>
+  </div>
+</section>
+
+<section class="card" id="s-options">
+  <h2><span class="num">4</span>Do we have a solution?</h2>
+  <p class="lead">Recovery options generated for this event, checked against readiness and ranked by <b>total cost of outcome = remaining VD + cost to execute</b>. Click any option to see its recovered schedule.</p>
+  <div class="answer" id="answer"></div>
+  <div class="sortbar"><span>Sort by:</span><button class="btn ghost on" id="sortCost">Lowest total cost</button><button class="btn ghost" id="sortDays">Fewest days lost</button><span id="optcount" style="margin-left:10px"></span></div>
+  <div class="cards" id="cards"></div>
+  <div id="opttable"></div>
+  <div class="detail" id="detail"></div>
+</section>
+
+<section class="card" id="s-flow">
+  <h2><span class="num">5</span>Decision flow: from twin to lesson applied</h2>
+  <p class="lead">The twin recommends; the Operations Manager decides; the PMT executes; the lesson is logged and fed back into the plan, so it is applied, not just recorded.</p>
+  <div class="flow" id="flow">
+    <div class="st" data-i="0">Digital Twin<small>simulates the cascade</small></div>
+    <div class="st" data-i="1">Ranked options<small>cost, days, readiness, risk</small></div>
+    <div class="st" data-i="2">OM decides<small id="omchoice">select an option</small></div>
+    <div class="st" data-i="3">PMT executes<small>requirements actioned</small></div>
+    <div class="st" data-i="4">Lessons learnt<small>logged &amp; applied</small></div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn" id="approve">OM approves selected option</button>
+    <span class="muted" id="approvehint"></span>
+  </div>
+  <div class="lesson" id="lesson"></div>
+  <div id="lessonlog" style="margin-top:12px"></div>
+</section>
+
+<section class="card" id="s-how">
+  <h2><span class="num">6</span>How it works</h2>
+  <div class="how" id="how"></div>
+</section>
+<footer>Campaign Digital Twin - Mock Simulator &middot; all tasks, durations, costs, probabilities and vessels are MOCK / illustrative &middot; not for operational use &middot; TechnipFMC | Internal</footer>
+</main>
+<script>/* Campaign Digital Twin - simulation engine (MOCK / illustrative data).
+   CPM (forward/backward pass), vessel spread costing, failure cascade,
+   VD/CNQ, recovery-option generator with readiness gating, ranking. */
+(function (root) {
+'use strict';
+
+// ---------------------------------------------------------------- data
+var VESSELS = {
+  CSV1: { id:'CSV1', name:'CSV 1', rate:250000, inBaseline:true, offhireLossDays:2, remobCost:150000,
+          desc:'Construction support vessel: rigid-lay spread with A&R winch, 2x WROV, 250 t AHC crane' },
+  CSV2: { id:'CSV2', name:'CSV 2', rate:280000, inBaseline:false, mobLeadDays:3, demobDays:2,
+          desc:'Call-off construction vessel: 2x WROV, 250 t AHC crane, 3-day mobilisation lead' },
+  HLV:  { id:'HLV',  name:'HLV', rate:200000, inBaseline:true, minCharterDays:4, offhireLossDays:null,
+          desc:'Heavy lift vessel: 800 t main crane (manifold lift), 4-day minimum charter' },
+  SUP:  { id:'SUP',  name:'Supply vessel', rate:150000, inBaseline:true, offhireLossDays:2, remobCost:80000,
+          desc:'PSV: pipe & consumables supply, precom spread deck, field standby' },
+  FCB:  { id:'FCB',  name:'Fast crew boat', rate:100000, inBaseline:true, offhireLossDays:1, remobCost:20000,
+          desc:'Crew changes, urgent spares (30 kn), precom/commissioning crew shuttle' }
+};
+var VESSEL_ORDER = ['CSV1','CSV2','HLV','SUP','FCB'];
+
+// Readiness gates: a task cannot start before the gate day (start-no-earlier-than).
+var GATES = {
+  hlvOnLocation: { label:'HLV on location (charter window opens)', day:14, task:'D' },
+  precomSpread:  { label:'Precom spread mobilised: pumps, pigs, gauge plates, chemicals', day:18, task:'E' },
+  hostWindow:    { label:'Host/FPSO commissioning window open', day:28, task:'G' }
+};
+
+function P(id, kind){ return { id:id, kind:kind || 'technical' }; }
+var TASKS = [
+  { id:'A', short:'Mobilise & transit', name:'Mobilise & transit to field', dur:3, preds:[], vessels:['CSV1','SUP'],
+    prereq:{ equipment:'Lay spread, PLETs & pipe load-out complete', personnel:'Marine + construction crews (2x12 h)', permits:'Marine warranty survey, port clearance', materials:'Linepipe joints, PLETs, consumables', host:'-' } },
+  { id:'B', short:'Pre-lay survey & seabed prep', name:'Pre-lay survey & seabed prep', dur:3, preds:[P('A')], vessels:['CSV1'],
+    prereq:{ equipment:'WROV, survey sensors, boulder grab', personnel:'Survey team', permits:'Field work permit, SIMOPS plan', materials:'-', host:'500 m zone entry approval' } },
+  { id:'C', short:'Flowline lay & PLETs', name:'Flowline lay & PLET install (12 in, 18 km)', dur:8, preds:[P('B')], vessels:['CSV1','SUP'],
+    prereq:{ equipment:'Lay spread, A&R winch, tensioners', personnel:'Lay crew, welders, NDT', permits:'Lay procedure approved', materials:'Pipe supply by PSV', host:'-' } },
+  { id:'D', short:'Manifold lift (crane)', name:'Manifold lift & install (140 t)', dur:4, preds:[P('C','preferential')], vessels:['HLV'],
+    prereq:{ equipment:'HLV 800 t crane, rigging, WROV', personnel:'Lift supervisor, riggers', permits:'Lift plan approved, SIMOPS with lay', materials:'Manifold + suction pile on HLV deck', host:'HLV charter window (Day 14)' },
+    note:'Planned after lay (C) so HLV and lay spread are not in the field together.' },
+  { id:'I', short:'Umbilical & flying-lead lay', name:'Umbilical lay & flying-lead pre-lay', dur:5, preds:[P('C')], vessels:['CSV1'],
+    prereq:{ equipment:'Carousel, WROV', personnel:'Umbilical crew', permits:'Umbilical installation procedure', materials:'Umbilical, flying leads', host:'-' } },
+  { id:'E', short:'Pre-commissioning (precom)', name:'Pre-commissioning (flood, clean, gauge, hydrotest)', dur:5, preds:[P('D','preferential'), P('C')], vessels:['SUP','FCB'],
+    prereq:{ equipment:'Precom spread: pumps, pigs, gauge plates, chemicals', personnel:'Precom technicians', permits:'Flooding/hydrotest procedure approved', materials:'Filtered seawater, biocide, dye, O2 scavenger', host:'Test heads/PLET accessible' },
+    note:'Technically E only needs C (pipeline laid). D>E is a planning (preferential) link to avoid SIMOPS.' },
+  { id:'F', short:'Tie-in spools (ROV, metrology)', name:'Tie-in spools & flying leads (ROV, metrology)', dur:5, preds:[P('E'), P('I'), P('D')], vessels:['CSV1'],
+    prereq:{ equipment:'WROV, metrology kit, spool rigging', personnel:'ROV pilots, tie-in engineers', permits:'Tie-in procedure, hydrotest certificate', materials:'Spools (fabricated to metrology), seals', host:'-' } },
+  { id:'G', short:'Commissioning & handover', name:'Commissioning & handover to host', dur:4, preds:[P('F')], vessels:['SUP','FCB'],
+    prereq:{ equipment:'Commissioning spread, N2/MEG', personnel:'Commissioning team + host operators', permits:'Permit-to-work from host', materials:'MEG, N2', host:'Host/FPSO commissioning window (Day 28)' } },
+  { id:'H', short:'CSV demob & as-built', name:'CSV demob & as-built survey', dur:2, preds:[P('F')], vessels:['CSV1'],
+    prereq:{ equipment:'WROV survey', personnel:'Survey team', permits:'-', materials:'-', host:'-' } }
+];
+
+var CREW_DAY_RATE = 25000;        // relief crew for 24 h operations, per task day
+var START_DATE = '2027-04-01';    // mock campaign Day 0
+
+// ---------------------------------------------------------------- helpers
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function basePlan(){
+  return { tasks: clone(TASKS), gates: clone(GATES), snet:{}, fixedHire:{}, extraHire:{}, offhire:false };
+}
+function taskMap(plan){ var m={}; plan.tasks.forEach(function(t){ m[t.id]=t; }); return m; }
+
+function mergeMods(a, b){
+  var m = clone(a || {}); b = b || {};
+  ['durAdd'].forEach(function(k){ if(b[k]){ m[k]=m[k]||{}; for(var t in b[k]) m[k][t]=(m[k][t]||0)+b[k][t]; } });
+  ['gateDay','snet','reassign','fixedHire'].forEach(function(k){ if(b[k]){ m[k]=m[k]||{}; for(var t in b[k]) m[k][t]=b[k][t]; } });
+  ['removePred','addPred'].forEach(function(k){ if(b[k]) m[k]=(m[k]||[]).concat(b[k]); });
+  if(b.offhire) m.offhire = true;
+  return m;
+}
+
+function applyMods(plan, mods){
+  var p = clone(plan), tm = taskMap(p); mods = mods || {};
+  if(mods.durAdd) for(var t in mods.durAdd) tm[t].dur = Math.max(1, tm[t].dur + mods.durAdd[t]);
+  if(mods.gateDay) for(var g in mods.gateDay) p.gates[g].day = mods.gateDay[g];
+  if(mods.snet) for(var s in mods.snet) p.snet[s] = Math.max(p.snet[s]||0, mods.snet[s]);
+  (mods.removePred||[]).forEach(function(r){ tm[r[0]].preds = tm[r[0]].preds.filter(function(x){ return x.id!==r[1]; }); });
+  (mods.addPred||[]).forEach(function(r){ if(!tm[r[0]].preds.some(function(x){return x.id===r[1];})) tm[r[0]].preds.push(P(r[1], r[2]||'resource')); });
+  if(mods.reassign) for(var r in mods.reassign) tm[r].vessels = mods.reassign[r].slice();
+  if(mods.fixedHire) for(var v in mods.fixedHire) p.fixedHire[v] = mods.fixedHire[v];
+  if(mods.offhire) p.offhire = true;
+  return p;
+}
+
+// ---------------------------------------------------------------- CPM
+function topoSort(plan){
+  var tm = taskMap(plan), indeg={}, succ={}, order=[], q=[];
+  plan.tasks.forEach(function(t){ indeg[t.id]=0; succ[t.id]=[]; });
+  plan.tasks.forEach(function(t){ t.preds.forEach(function(p){
+    if(!tm[p.id]) throw new Error('Unknown predecessor '+p.id+' on '+t.id);
+    indeg[t.id]++; succ[p.id].push(t.id); }); });
+  plan.tasks.forEach(function(t){ if(indeg[t.id]===0) q.push(t.id); });
+  while(q.length){ var n=q.shift(); order.push(n); succ[n].forEach(function(s){ if(--indeg[s]===0) q.push(s); }); }
+  if(order.length!==plan.tasks.length) throw new Error('Dependency cycle detected');
+  return { order:order, succ:succ };
+}
+
+function cpm(plan){
+  var tm = taskMap(plan), ts = topoSort(plan), r = {}, finish = 0;
+  var snet = {}; plan.tasks.forEach(function(t){ snet[t.id] = plan.snet[t.id]||0; });
+  for(var g in plan.gates){ var G=plan.gates[g]; if(tm[G.task]) snet[G.task] = Math.max(snet[G.task], G.day); }
+  // forward pass
+  ts.order.forEach(function(id){
+    var t = tm[id], predEF = 0, driver = null;
+    t.preds.forEach(function(p){ if(r[p.id].EF > predEF || driver===null && r[p.id].EF>=predEF){ predEF = r[p.id].EF; driver = p.id; } });
+    var ES = Math.max(predEF, snet[id]);
+    r[id] = { id:id, dur:t.dur, ES:ES, EF:ES+t.dur, predEF:predEF, gated: snet[id] > predEF, gateDay:snet[id], driver: snet[id]>predEF ? 'gate' : driver };
+    finish = Math.max(finish, r[id].EF);
+  });
+  // backward pass
+  ts.order.slice().reverse().forEach(function(id){
+    var LF = finish;
+    ts.succ[id].forEach(function(s){ LF = Math.min(LF, r[s].LS); });
+    r[id].LF = LF; r[id].LS = LF - r[id].dur; r[id].TF = r[id].LS - r[id].ES; r[id].critical = r[id].TF === 0;
+  });
+  var edges = [];
+  plan.tasks.forEach(function(t){ t.preds.forEach(function(p){
+    edges.push({ from:p.id, to:t.id, kind:p.kind, critical: r[p.id].critical && r[t.id].critical && r[p.id].EF === r[t.id].ES });
+  }); });
+  var path = ts.order.filter(function(id){ return r[id].critical; });
+  return { tasks:r, finish:finish, order:ts.order, edges:edges, criticalPath:path };
+}
+
+// ---------------------------------------------------------------- vessel spread cost
+function vesselStats(plan, res){
+  var out = {};
+  VESSEL_ORDER.forEach(function(v){
+    var ints = plan.tasks.filter(function(t){ return t.vessels.indexOf(v)>=0; })
+                         .map(function(t){ return [res.tasks[t.id].ES, res.tasks[t.id].EF, t.id]; })
+                         .sort(function(a,b){ return a[0]-b[0]; });
+    var s = { id:v, rate:VESSELS[v].rate, intervals:ints, start:null, end:null, days:0, busy:0, idle:0, gaps:[], fixedDays:0 };
+    if(ints.length){
+      s.start = ints[0][0]; s.end = Math.max.apply(null, ints.map(function(i){return i[1];}));
+      s.days = s.end - s.start;
+      // union of busy intervals + idle gaps
+      var cs = ints[0][0], ce = ints[0][1];
+      for(var i=1;i<ints.length;i++){
+        if(ints[i][0] > ce){ s.busy += ce-cs; s.gaps.push([ce, ints[i][0]]); cs = ints[i][0]; ce = ints[i][1]; }
+        else ce = Math.max(ce, ints[i][1]);
+      }
+      s.busy += ce-cs; s.idle = s.days - s.busy;
+    }
+    if(plan.fixedHire[v]){ s.fixedDays = plan.fixedHire[v].days; s.fixedStart = plan.fixedHire[v].start; s.days += s.fixedDays; }
+    s.cost = s.days * s.rate;
+    out[v] = s;
+  });
+  return out;
+}
+
+// Off-hire: release a vessel during scenario-induced idle time (beyond baseline idle),
+// losing transit days each way; credit only if >= 2 days.
+function offhireCredits(stats, baseStats){
+  var credits = {};
+  VESSEL_ORDER.forEach(function(v){
+    var V = VESSELS[v], s = stats[v], b = baseStats[v];
+    if(!V.offhireLossDays || !s.gaps.length) return;
+    var extraIdle = s.idle - b.idle;
+    var gap = s.gaps.slice().sort(function(a,b){ return (b[1]-b[0])-(a[1]-a[0]); })[0];
+    var credit = Math.min(extraIdle, gap[1]-gap[0]) - V.offhireLossDays;
+    if(credit >= 2){
+      var st = gap[0] + V.offhireLossDays/2;
+      credits[v] = { days:credit, saving:credit*V.rate, remob:V.remobCost, from:st, to:st+credit, gap:gap };
+    }
+  });
+  return credits;
+}
+
+function evaluate(plan, baseStats){
+  var res = cpm(plan), stats = vesselStats(plan, res), credits = {};
+  if(plan.offhire && baseStats){ credits = offhireCredits(stats, baseStats);
+    for(var v in credits){ stats[v].offhire = credits[v]; stats[v].days -= credits[v].days; stats[v].cost = stats[v].days*stats[v].rate; } }
+  var total = 0; VESSEL_ORDER.forEach(function(v){ total += stats[v].cost; });
+  return { plan:plan, res:res, stats:stats, vesselCost:total, finish:res.finish, credits:credits };
+}
+
+// ---------------------------------------------------------------- baseline
+function baseline(){ var p = basePlan(), e = evaluate(p); e.baseStats = e.stats; return e; }
+
+// ---------------------------------------------------------------- scenarios
+var SCENARIOS = [
+  { id:'E1', title:'Crane breakdown during D', short:'HLV main crane hydraulic failure during manifold lift',
+    task:'D', type:'equipment', delayDays:6, onset:1, vessels:['HLV'], probability:0.15,
+    cause:'HLV main crane slew-drive hydraulic pump fails on Day 1 of the lift. OEM repair with part from shore: 6 days.',
+    cnq:[{ label:'Re-rigging & re-survey of manifold target box', cost:60000 }],
+    spare:{ days:3, freight:80000, label:'spare slew-drive hydraulic pump', short:'crane pump' } },
+  { id:'E2', title:'ROV failure during F tie-in', short:'Work-class ROV tether system fails on CSV 1',
+    task:'F', type:'equipment', delayDays:4, onset:1, vessels:['CSV1'], probability:0.20,
+    cause:'WROV tether management system (TMS) fault on CSV 1 during spool metrology/tie-in. Repair: 4 days.',
+    cnq:[{ label:'Repeat metrology & spool re-check', cost:40000 }],
+    spare:{ days:2, freight:90000, label:'spare TMS unit + ROV technicians', short:'ROV TMS' } },
+  { id:'E3', title:'A&R winch fault during C lay', short:'Abandonment & recovery winch fault on CSV 1',
+    task:'C', type:'equipment', delayDays:5, onset:4, vessels:['CSV1','SUP'], probability:0.10,
+    cause:'A&R winch hydraulic motor fault on Day 4 of lay; pipe laid down on seabed. Repair: 5 days.',
+    cnq:[{ label:'Laydown head recovery & buckle inspection', cost:120000 }],
+    spare:{ days:2, freight:60000, label:'A&R winch hydraulic motor', short:'winch motor' } },
+  { id:'E4', title:'Host/FPSO window slips (G)', short:'Host commissioning window moves 7 days later',
+    task:'G', type:'external', gate:{ id:'hostWindow', day:35 }, onsetDay:24, vessels:['SUP','FCB'], probability:0.25,
+    cause:'FPSO operator notifies on Day 24 that the commissioning window moves from Day 28 to Day 35 (topsides shutdown).',
+    cnq:[{ label:'Re-validation of preserved line (N2 pack re-test)', cost:50000 }],
+    negotiate:{ day:32, label:'Host operator agreement to a Day 32 window' } },
+  { id:'E5', title:'Precom chemicals delayed (E)', short:'Precom chemicals held in customs',
+    task:'E', type:'material', gate:{ id:'precomSpread', day:22 }, onsetDay:14, vessels:['SUP'], probability:0.20,
+    cause:'Biocide/O2 scavenger shipment held in customs: precom spread ready Day 22 instead of Day 18.',
+    cnq:[{ label:'Precom crew standby & re-mobilisation', cost:30000 }],
+    expedite:{ day:20, cost:120000, label:'Air-freight replacement chemicals to supply base', short:'Air-freight precom chemicals' } },
+  { id:'E6', title:'Weather & manpower gap on D', short:'3 days waiting on weather + crew rotation gap',
+    task:'D', type:'weather', delayDays:3, onset:1, vessels:['HLV'], probability:0.30,
+    cause:'Hs above HLV lift limit (2.0 m) and a crew-rotation gap: 3 days waiting on weather/crew.',
+    cnq:[{ label:'Crew overtime & lift re-planning', cost:20000 }] }
+];
+
+function scenarioById(id){ for(var i=0;i<SCENARIOS.length;i++) if(SCENARIOS[i].id===id) return SCENARIOS[i]; return null; }
+
+function makeCustom(task, delay, vessel, type, cnqCost){
+  var ev = { id:'CUSTOM', title:'Custom event on '+task, short:'User-defined event', task:task, type:type||'equipment',
+    delayDays:delay, onset:1, vessels:[vessel], probability:0.10,
+    cause:'Custom: '+delay+' day(s) delay on Task '+task+' affecting '+VESSELS[vessel].name+'.',
+    cnq: cnqCost>0 ? [{ label:'Rework / re-mobilisation allowance', cost:cnqCost }] : [] };
+  if(ev.type==='equipment') ev.spare = { days:Math.max(1, Math.ceil(delay/2)), freight:75000, label:'expedited spare part', short:'part' };
+  return ev;
+}
+
+function eventMods(ev){
+  if(ev.gate){ var m={gateDay:{}}; m.gateDay[ev.gate.id]=ev.gate.day; return m; }
+  var d={}; d[ev.task]=ev.delayDays; return { durAdd:d };
+}
+
+// ---------------------------------------------------------------- recovery option templates
+function hireActiveAt(stats, v, day){ var s=stats[v]; return s.start!==null && day>=s.start && day<s.end; }
+
+var TEMPLATES = [
+  { key:'WAIT', group:'none', build:function(c){ return {
+      name:'Wait for repair (do nothing)', desc:'Accept the delay; all spreads stand by at full day rate.',
+      mods:{}, costs:[], risk:{level:'Low', note:'No change to method; schedule risk only'},
+      reqs:[], lesson:'Record root cause and repair duration of the failed equipment.' }; } },
+
+  { key:'SPARE', group:'repair', build:function(c){ var ev=c.ev; if(!ev.spare || ev.gate) return null;
+      var red = ev.delayDays - ev.spare.days; if(red<=0) return null;
+      var d={}; d[ev.task]=-red;
+      var fcbOn = hireActiveAt(c.impacted.stats,'FCB',c.t0), extra = fcbOn?0:2;
+      var costs=[{label:'Expedite & freight: '+ev.spare.label, amount:ev.spare.freight}];
+      if(extra) costs.push({label:'Fast crew boat early call-out ('+extra+' d x $'+VESSELS.FCB.rate/1000+'k)', amount:extra*VESSELS.FCB.rate});
+      return { name:'Spare '+ev.spare.short+' by fast crew boat',
+        desc:'Ship the spare from the shore base by FCB; repair time '+ev.delayDays+' d \u2192 '+ev.spare.days+' d.',
+        mods:{durAdd:d}, costs:costs, risk:{level:'Low', note:'Routine marine transfer; standard repair'},
+        reqs:[ {label:'Spare located in OEM stock (shore base)', lead:0},
+               {label:'Fast crew boat available ('+(fcbOn?'already on hire':'1-day call-off')+')', lead:fcbOn?0:1},
+               {label:'OEM service technician mobilised with part', lead:1},
+               {label:'Offshore transfer permit / weather window', lead:0} ],
+        lesson:'Add the '+ev.spare.label+' to the critical-spares list held at the shore base for every campaign.' }; } },
+
+  { key:'RESEQ_ED', group:'logic', build:function(c){ var ev=c.ev; if(ev.task!=='D' || ev.gate) return null;
+      return { name:'Start precom (E) after C, parallel with D',
+        desc:'Remove the preferential D\u2192E link. E keeps its technical link to C and starts once readiness checks pass.',
+        mods:{removePred:[['E','D']]},
+        costs:[{label:'SIMOPS bridging & procedure engineering', amount:35000},{label:'Precom crew early call-out', amount:50000}],
+        risk:{level:'Medium', note:'SIMOPS: HLV lifting while line is pressurised; exclusion zone required'},
+        reqs:[ {label:'Precom spread mobilised (pumps, pigs, gauge plates, chemicals)', gate:'precomSpread'},
+               {label:'Flooding/hydrotest procedure approved (Rev C)', lead:0},
+               {label:'Test heads / PLET accessible (C complete)', after:'C', task:'E'},
+               {label:'Support vessel available (supply vessel on location)', lead:0},
+               {label:'SIMOPS bridging document signed (HLV + precom)', lead:2, task:'E'} ],
+        lesson:'Pre-approve precom readiness (spread, procedure, SIMOPS) before C completes, so E can run in parallel with D: added to the readiness register and planning template.' }; } },
+
+  { key:'RESEQ_DC', group:'logic', build:function(c){ var ev=c.ev; if((ev.task!=='C' && ev.task!=='B') || ev.gate) return null;
+      return { name:'Lift manifold (D) in parallel with lay (C)',
+        desc:'Replace the preferential C\u2192D link with the technical B\u2192D link (seabed prep done). HLV works while lay resumes.',
+        mods:{removePred:[['D','C']], addPred:[['D','B','technical']]},
+        costs:[{label:'SIMOPS lift/lay assessment & HLV field-entry plan', amount:30000}],
+        risk:{level:'Medium', note:'SIMOPS: two DP vessels in the field; 500 m zone management'},
+        reqs:[ {label:'HLV on location (charter window)', gate:'hlvOnLocation'},
+               {label:'Seabed prep at manifold site complete (B)', after:'B', task:'D'},
+               {label:'SIMOPS plan approved (lay + lift)', lead:2, task:'D'},
+               {label:'Manifold & rigging on HLV deck', lead:0} ],
+        lesson:'Keep a pre-approved SIMOPS plan so the manifold lift can run in parallel with lay when lay is disrupted.' }; } },
+
+  { key:'SWAP', group:'repair', build:function(c){ var ev=c.ev; if(ev.task!=='D' || ev.type!=='equipment') return null;
+      var base = c.baseTask.dur, swapDur = ev.onset + 1 + Math.ceil(base*1.25), cur = base + ev.delayDays;
+      if(swapDur >= cur) return null; var d={D: swapDur - cur};
+      var hlvDays = Math.max(VESSELS.HLV.minCharterDays, ev.onset + 1);
+      return { name:'Swap lift to CSV 1 crane, release HLV',
+        desc:'CSV 1 (250 t AHC crane) lifts the 140 t manifold after a revised lift plan; umbilical lay (I) moves after the lift. HLV released at minimum charter.',
+        mods:{durAdd:d, reassign:{D:['CSV1']}, addPred:[['I','D','resource']], fixedHire:{HLV:{days:hlvDays, start:c.baseRes.tasks.D.ES}}},
+        costs:[{label:'Revised lift plan & engineering check', amount:50000},{label:'Rigging transfer & sea-fastening', amount:40000}],
+        risk:{level:'High', note:'Lift at ~72% of CSV 1 crane capacity at radius; new lift plan'},
+        reqs:[ {label:'CSV 1 crane capacity check: 140 t at 22 m radius (72% utilisation)', lead:0},
+               {label:'Revised lift plan approved by marine warranty surveyor', lead:1},
+               {label:'Rigging transferred from HLV to CSV 1', lead:1},
+               {label:'CSV 1 free after C (umbilical lay re-sequenced)', lead:0} ],
+        lesson:'Pre-engineer a back-up lift plan on the CSV crane for every structure within its capacity.' }; } },
+
+  { key:'CSV2', group:'repair', build:function(c){ var ev=c.ev; if(ev.type!=='equipment' || ev.gate || ['D','F','I'].indexOf(ev.task)<0) return null;
+      var V=VESSELS.CSV2, base=c.baseTask.dur, cur=base+ev.delayDays;
+      var newDur = ev.task==='D' ? ev.onset + V.mobLeadDays + base : ev.onset + V.mobLeadDays + (base - ev.onset);
+      if(newDur >= cur) return null;
+      var work = newDur - ev.onset - V.mobLeadDays, hire = V.mobLeadDays + work + V.demobDays, d={}; d[ev.task]=newDur-cur;
+      var mods={durAdd:d};
+      if(ev.task==='D'){ mods.reassign={D:[]}; mods.fixedHire={HLV:{days:Math.max(VESSELS.HLV.minCharterDays, ev.onset+1), start:c.baseRes.tasks.D.ES}}; }
+      return { name:'Bring in CSV 2 for Task '+ev.task,
+        desc:'Call off CSV 2 ('+V.mobLeadDays+'-day mobilisation) to perform the remaining work; hire '+hire+' d incl. transit & demob.',
+        mods:mods, costs:[{label:'CSV 2 hire '+hire+' d x $'+V.rate/1000+'k', amount:hire*V.rate},{label:'Procedure bridging & crew familiarisation', amount:40000}],
+        risk:{level:'Medium', note:'New vessel interface; bridging documents'},
+        reqs:[ {label:'CSV 2 call-off available ('+V.mobLeadDays+'-day lead)', lead:V.mobLeadDays},
+               {label:'Bridging document & procedures for CSV 2', lead:1},
+               {label:'Equipment spec match (crane/WROV)', lead:0} ],
+        lesson:'Maintain a call-off agreement with a second CSV and keep bridging documents current.' }; } },
+
+  { key:'SHIFT', group:'shift', build:function(c){ var ev=c.ev; if(['C','D','E','F','G','I'].indexOf(ev.task)<0) return null;
+      var dur = c.impactedTask.dur; if(dur < 3) return null; var d={}; d[ev.task]=-1;
+      return { name:'24 h shift pattern on '+ev.task,
+        desc:'Add a relief crew (3-shift rotation) once work resumes; compresses Task '+ev.task+' by 1 day.',
+        mods:{durAdd:d}, costs:[{label:'Relief crew '+c.baseTask.dur+' d x $'+CREW_DAY_RATE/1000+'k', amount:c.baseTask.dur*CREW_DAY_RATE}],
+        risk:{level:'Medium', note:'Fatigue management; night operations'},
+        reqs:[ {label:'Relief crew available (crew change by FCB)', lead:1},
+               {label:'Fatigue risk assessment approved', lead:0},
+               {label:'Client / host notified of 24 h operations', lead:0} ],
+        lesson:'Pre-agree a 24 h relief-crew roster as a standard recovery lever in the execution plan.' }; } },
+
+  { key:'EXPEDITE', group:'repair', build:function(c){ var ev=c.ev; if(!ev.expedite) return null;
+      var m={gateDay:{}}; m.gateDay[ev.gate.id]=ev.expedite.day;
+      return { name:ev.expedite.short, desc:'Bring the readiness gate forward from Day '+ev.gate.day+' to Day '+ev.expedite.day+'.',
+        mods:m, costs:[{label:ev.expedite.label, amount:ev.expedite.cost}], risk:{level:'Low', note:'Logistics only; chemical certificates to check'},
+        reqs:[ {label:'Replacement chemicals available from approved supplier', lead:1},
+               {label:'Dangerous-goods air-freight approval', lead:1},
+               {label:'Supply vessel deck space for precom spread', lead:0} ],
+        lesson:'Add customs clearance lead time for precom chemicals to the readiness register; order with float.' }; } },
+
+  { key:'NEGOTIATE', group:'repair', build:function(c){ var ev=c.ev; if(!ev.negotiate) return null;
+      var m={gateDay:{}}; m.gateDay[ev.gate.id]=ev.negotiate.day;
+      return { name:'Earlier host window (Day '+ev.negotiate.day+')', desc:'Ask the host to pull the window in by '+(ev.gate.day-ev.negotiate.day)+' days.',
+        mods:m, costs:[{label:'Commercial / interface effort', amount:0}], risk:{level:'Low', note:'Depends on host shutdown plan'},
+        reqs:[ {label:ev.negotiate.label, blocked:true, note:'Not confirmed by host'} ],
+        lesson:'Agree host window change rules (notice period, standby cost sharing) in the interface agreement.' }; } },
+
+  { key:'OFFHIRE', group:'offhire', build:function(c){ return {
+      name:'Off-hire idle vessel(s) during wait',
+      desc:'Off-hire vessels whose idle time grows because of the event; transit days each way are lost.',
+      mods:{offhire:true}, costs:[], risk:{level:'Medium', note:'Vessel must return on time; recall clause needed'},
+      reqs:[ {label:'Charter allows off-hire with 24 h notice', lead:0},
+             {label:'Return-to-field guaranteed before next task', lead:0} ],
+      lesson:'Add off-hire/recall clauses and idle-time triggers to the vessel charter strategy.' }; } }
+];
+
+// ---------------------------------------------------------------- option evaluation
+function evalRequirements(reqs, ev, plan, t0){
+  var snet = {};
+  reqs.forEach(function(q){
+    if(q.gate){ q.task = plan.gates[q.gate].task; }
+    else if(q.task && q.lead!==undefined){ snet[q.task] = Math.max(snet[q.task]||0, t0 + q.lead); }
+  });
+  return snet;
+}
+
+function statusRequirements(reqs, plan, res, t0){
+  return reqs.map(function(q){
+    var o = { label:q.label };
+    if(q.blocked){ o.status='blocked'; o.text=q.note||'Not available'; return o; }
+    if(q.gate){
+      var G = plan.gates[q.gate], tr = res.tasks[G.task];
+      o.availableDay = G.day;
+      if(G.day > tr.predEF){ o.status='lead'; o.lead=G.day-tr.predEF; o.text='Not ready: ready Day '+G.day+', needed Day '+tr.predEF+' \u2192 '+o.lead+' d lead; '+G.task+' gated to Day '+G.day; }
+      else { o.status='ready'; o.text='Ready Day '+G.day+' (needed Day '+tr.predEF+')'; }
+      return o;
+    }
+    if(q.after){ o.status='ready'; o.text='Available Day '+res.tasks[q.after].EF+' (after '+q.after+')'; return o; }
+    var avail = t0 + (q.lead||0);
+    if(q.task){
+      var tt = res.tasks[q.task];
+      if(avail > tt.predEF){ o.status='lead'; o.lead=avail-tt.predEF; o.text='Ready Day '+avail+' \u2192 gates '+q.task+' by '+o.lead+' d'; }
+      else { o.status='ready'; o.text='Ready Day '+avail+' (needed Day '+tt.predEF+')'; }
+    } else {
+      o.status = 'ready';
+      o.text = q.lead ? ('Ready Day '+avail+' ('+q.lead+' d to arrange, off critical path)') : 'Ready now';
+    }
+    return o;
+  });
+}
+
+function riskMax(a,b){ var r={Low:0,Medium:1,High:2}; return r[a]>=r[b]?a:b; }
+
+function analyse(ev){
+  var B = baseline(), base = B.plan;
+  var impactedPlan = applyMods(base, eventMods(ev));
+  var I = evaluate(impactedPlan, B.stats);
+  var cnq = (ev.cnq||[]).reduce(function(s,x){ return s+x.cost; }, 0);
+  var t0 = ev.onsetDay!==undefined ? ev.onsetDay : B.res.tasks[ev.task].ES + (ev.onset||0);
+
+  // impact
+  var perVessel = VESSEL_ORDER.map(function(v){
+    var b=B.stats[v], s=I.stats[v];
+    return { id:v, name:VESSELS[v].name, rate:VESSELS[v].rate, baseDays:b.days, newDays:s.days, extraDays:s.days-b.days, vd:(s.days-b.days)*VESSELS[v].rate };
+  });
+  var vdVessel = I.vesselCost - B.vesselCost;
+  var cascade = I.res.order.map(function(id){
+    var b=B.res.tasks[id], n=I.res.tasks[id];
+    return { id:id, name:taskMap(base)[id].name, baseES:b.ES, baseEF:b.EF, newES:n.ES, newEF:n.EF, shiftStart:n.ES-b.ES, shiftFinish:n.EF-b.EF, critical:n.critical, origin:id===ev.task };
+  }).filter(function(x){ return x.shiftFinish!==0 || x.shiftStart!==0 || x.origin; });
+  var impact = { finish:I.finish, daysLost:I.finish-B.finish, vdVessel:vdVessel, cnq:cnq, vd:vdVessel+cnq,
+                 expectedVD:(vdVessel+cnq)*ev.probability, perVessel:perVessel, cascade:cascade, eval:I };
+
+  // build single options
+  var ctx = { ev:ev, t0:t0, base:B, impacted:I, baseRes:B.res, baseTask:taskMap(base)[ev.task], impactedTask:taskMap(impactedPlan)[ev.task] };
+  var singles = [];
+  TEMPLATES.forEach(function(T){ var o=T.build(ctx); if(o){ o.key=T.key; o.group=T.group; o.parts=[o]; singles.push(o); } });
+
+  // combos: pairs from different groups (excluding WAIT)
+  var combos = [];
+  var act = singles.filter(function(o){ return o.key!=='WAIT'; });
+  for(var i=0;i<act.length;i++) for(var j=i+1;j<act.length;j++){
+    if(act[i].group===act[j].group) continue;
+    if(act[i].reqs.concat(act[j].reqs).some(function(q){ return q.blocked; })) continue;
+    var a=act[i], b=act[j];
+    combos.push({ key:a.key+'+'+b.key, group:'combo', parts:[a,b], name:a.name+' + '+b.name,
+      desc:a.desc+' '+b.desc, mods:mergeMods(a.mods,b.mods), costs:a.costs.concat(b.costs),
+      risk:{level:riskMax(a.risk.level,b.risk.level), note:a.risk.level>=b.risk.level? a.risk.note : b.risk.note},
+      reqs:a.reqs.concat(b.reqs), lesson:a.lesson+' '+b.lesson });
+  }
+
+  var waitTotal = impact.vd;
+  var all = singles.concat(combos).map(function(o){
+    var plan = applyMods(impactedPlan, o.mods);
+    var reqSnet = evalRequirements(o.reqs, ev, plan, t0);
+    plan = applyMods(plan, { snet:reqSnet });
+    var E = evaluate(plan, B.stats);
+    var reqs = statusRequirements(o.reqs, plan, E.res, t0);
+    var costs = o.costs.slice();
+    for(var v in E.credits) costs.push({ label:VESSELS[v].name+' off-hire re-mobilisation', amount:E.credits[v].remob });
+    var optCost = costs.reduce(function(s,x){ return s+x.amount; }, 0);
+    var vdRem = (E.vesselCost - B.vesselCost) + cnq;
+    var blocked = reqs.some(function(r){ return r.status==='blocked'; });
+    var applicable = !(o.key.indexOf('OFFHIRE')>=0 && !Object.keys(E.credits).length);
+    var r = { key:o.key, name:o.name, desc:o.desc, parts:o.parts.map(function(p){return p.key;}), risk:o.risk, lesson:o.lesson,
+      reqs:reqs, costs:costs, optionCost:optCost, vdRemaining:vdRem, total:vdRem+optCost,
+      finish:E.finish, daysLost:E.finish-B.finish, daysSaved:impact.daysLost-(E.finish-B.finish),
+      vdAvoided:waitTotal-vdRem, netSaving:waitTotal-(vdRem+optCost), blocked:blocked, applicable:applicable,
+      flagged:reqs.some(function(r){ return r.status==='lead'; }), eval:E, credits:E.credits };
+    return r;
+  }).filter(function(o){ return o.applicable; });
+
+  // drop combos that add nothing over one of their parts (same finish & higher cost)
+  var byKey = {}; all.forEach(function(o){ byKey[o.key]=o; });
+  all = all.filter(function(o){
+    if(o.parts.length<2) return true;
+    return !o.parts.some(function(k){ var p=byKey[k]; return p && p.finish<=o.finish && p.total<=o.total; });
+  });
+  all = all.filter(function(o){ return !(o.parts.length<2 && o.key!=='WAIT' && o.daysSaved<=0 && o.netSaving<=0 && !o.blocked && o.key!=='OFFHIRE' && o.key.indexOf('RESEQ')<0); });
+  return { ev:ev, baseline:B, impact:impact, options:rank(all, 'cost'), t0:t0 };
+}
+
+function rank(opts, by){
+  var ok = opts.filter(function(o){ return !o.blocked; }), bl = opts.filter(function(o){ return o.blocked; });
+  ok.sort(function(a,b){ return by==='days' ? (a.daysLost-b.daysLost || a.total-b.total) : (a.total-b.total || a.daysLost-b.daysLost); });
+  return ok.concat(bl);
+}
+
+function dayToDate(day){
+  var d = new Date(START_DATE+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+day);
+  return d.toISOString().slice(0,10);
+}
+
+var api = { VESSELS:VESSELS, VESSEL_ORDER:VESSEL_ORDER, GATES:GATES, TASKS:TASKS, SCENARIOS:SCENARIOS, START_DATE:START_DATE,
+  basePlan:basePlan, applyMods:applyMods, cpm:cpm, vesselStats:vesselStats, evaluate:evaluate, baseline:baseline,
+  analyse:analyse, rank:rank, makeCustom:makeCustom, scenarioById:scenarioById, eventMods:eventMods, dayToDate:dayToDate, taskMap:taskMap };
+if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.CDT = api;
+})(this);
+</script>
+<script>(function(){
+'use strict';
+var C = window.CDT, V = C.VESSELS;
+var VCOL = { CSV1:'#4A2B6B', CSV2:'#C8288C', HLV:'#7B3FE4', SUP:'#3BA3C6', FCB:'#2C8C99' };
+var ROWS = ['A','B','C','D','E','F','G','I','H'];
+var B = C.baseline();
+var state = { scen:'E1', analysis:null, sort:'cost', sel:null, lessons:[] };
+var NS = 'http://www.w3.org/2000/svg';
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function money(x, dp){ var s = x<0?'-':''; x=Math.abs(x);
+  if(x>=1e6){ var m=Math.round(x/1e3)/1e3, t=(dp!==undefined)? m.toFixed(dp) : (Math.round(m*100)===m*100 ? m.toFixed(2) : m.toFixed(3)); return s+'$'+t+'M'; }
+  if(x>=1e3) return s+'$'+Math.round(x/1e3)+'k'; return s+'$'+Math.round(x); }
+function sgnMoney(x){ return (x>0?'+':'')+money(x); }
+function dateStr(day){ var d=C.dayToDate(day).split('-'); var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+d[1]-1]; return +d[2]+' '+m+' '+d[0]; }
+function chip(v){ return '<span class="chip" style="background:'+VCOL[v]+'">'+esc(V[v].name)+'</span>'; }
+function tmap(plan){ return C.taskMap(plan); }
+
+// ------------------------------------------------------------ SVG helpers
+function svg(w,h){ return '<svg xmlns="'+NS+'" viewBox="0 0 '+w+' '+h+'" font-family="Segoe UI, Helvetica Neue, Arial, Liberation Sans, sans-serif">'; }
+function wrapText(s, n){ var w=s.split(' '), lines=[], cur='';
+  w.forEach(function(x){ if((cur+' '+x).trim().length>n){ if(cur) lines.push(cur); cur=x; } else cur=(cur+' '+x).trim(); });
+  if(cur) lines.push(cur); return lines; }
+
+// ------------------------------------------------------------ 1. network
+function renderNetwork(){
+  var plan = B.plan, res = B.res, tm = tmap(plan);
+  var rank = {}; res.order.forEach(function(id){ var r=0; tm[id].preds.forEach(function(p){ r=Math.max(r, rank[p.id]+1); }); rank[id]=r; });
+  var row = {}, used = {};
+  res.order.forEach(function(id){ var k=rank[id]; if(res.tasks[id].critical){ row[id]=1; used[k+'_1']=1; } });
+  res.order.forEach(function(id){ if(row[id]!==undefined) return; var k=rank[id]; row[id] = !used[k+'_0'] ? 0 : 2; used[k+'_'+row[id]]=1; });
+  var W=1480, NW=176, NH=96, colW=(W-40-NW)/6, rowY=[30,175,320], H=430;
+  var pos={}; res.order.forEach(function(id){ pos[id]={ x:20+rank[id]*colW, y:rowY[row[id]] }; });
+  var s = svg(W,H);
+  s += '<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#B9AEC9"/></marker>'+
+       '<marker id="ahc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7B3FE4"/></marker>'+
+       '<marker id="aht" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3BA3C6"/></marker></defs>';
+  var below = 0;
+  res.edges.forEach(function(e){
+    var a=pos[e.from], b=pos[e.to], x1=a.x+NW, y1=a.y+NH/2, x2=b.x, y2=b.y+NH/2, d, lbl='', lx, ly;
+    var skip = rank[e.to]-rank[e.from] > 1 && row[e.from]===row[e.to];
+    var isTech = e.from==='C' && e.to==='E';
+    if(skip){ below++; var dip = (isTech?62:34) + NH/2; x1=a.x+NW/2+ (isTech?20:30); y1=a.y+NH; x2=b.x+NW/2-(isTech?20:30); y2=b.y+NH;
+      d='M'+x1+','+y1+' C'+x1+','+(y1+dip)+' '+x2+','+(y2+dip)+' '+x2+','+y2; lx=(x1+x2)/2; ly=y1+dip*0.78; }
+    else if(rank[e.to]-rank[e.from] > 1 && row[e.from]<row[e.to]){ x2=b.x+NW/2; y2=b.y; d='M'+x1+','+y1+' C'+(x2)+','+y1+' '+x2+','+y1+' '+x2+','+(y2-2); lx=x2; ly=y1; }
+    else { var mx=(x1+x2)/2; d='M'+x1+','+y1+' C'+mx+','+y1+' '+mx+','+y2+' '+(x2-2)+','+y2; lx=mx; ly=(y1+y2)/2-8; }
+    var col = isTech ? '#3BA3C6' : e.critical ? '#7B3FE4' : '#B9AEC9', wd = e.critical?4:2.2, dash = isTech?' stroke-dasharray="8 6"':'';
+    var mk = isTech?'aht':e.critical?'ahc':'ah';
+    s += '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+wd+'"'+dash+' marker-end="url(#'+mk+')"/>';
+    if(isTech) s += '<text x="'+lx+'" y="'+(ly+16)+'" text-anchor="middle" font-size="14" fill="#2B7F9C" font-weight="600">technical link: E may start after C if precom readiness is met</text>';
+    else if(e.kind==='preferential') s += '<text x="'+lx+'" y="'+(a.y-6)+'" text-anchor="middle" font-size="11.5" fill="#7B3FE4" font-style="italic" font-weight="600">planned</text>';
+  });
+  res.order.forEach(function(id){
+    var t=tm[id], r=res.tasks[id], p=pos[id], crit=r.critical;
+    var stroke = crit?'#7B3FE4':'#3BA3C6', fill = crit?'#F3EDFE':'#EEF8FB';
+    s += '<g><rect x="'+p.x+'" y="'+p.y+'" width="'+NW+'" height="'+NH+'" rx="12" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+(crit?3:2)+'"/>';
+    s += '<rect x="'+p.x+'" y="'+p.y+'" width="38" height="'+NH+'" rx="12" fill="'+stroke+'"/><rect x="'+(p.x+26)+'" y="'+p.y+'" width="12" height="'+NH+'" fill="'+stroke+'"/>';
+    s += '<text x="'+(p.x+19)+'" y="'+(p.y+NH/2+9)+'" text-anchor="middle" font-size="26" font-weight="800" fill="#fff">'+id+'</text>';
+    var lines = wrapText(t.short||t.name, 16).slice(0,2);
+    lines.forEach(function(L,i){ s += '<text x="'+(p.x+46)+'" y="'+(p.y+21+i*17)+'" font-size="14" font-weight="700" fill="#231A33">'+esc(L)+'</text>'; });
+    s += '<text x="'+(p.x+46)+'" y="'+(p.y+62)+'" font-size="13" fill="#4A2B6B"><tspan font-weight="800">'+t.dur+' d</tspan> &#183; '+t.vessels.map(function(v){return V[v].name.replace('Supply vessel','Supply').replace('Fast crew boat','FCB');}).join(', ')+'</text>';
+    s += '<text x="'+(p.x+46)+'" y="'+(p.y+82)+'" font-size="12.5" fill="#6B6280">Day '+r.ES+'&#8211;'+r.EF+' &#183; float '+r.TF+' d</text></g>';
+  });
+  s += '</svg>';
+  $('network').innerHTML = s;
+
+  // task table
+  var h = '<table><thead><tr><th>ID</th><th>Task</th><th class="num">Days</th><th>Predecessors</th><th>Vessels (spread)</th><th class="num">Early start&#8211;finish</th><th class="num">Float</th><th>Resources &amp; prerequisites</th></tr></thead><tbody>';
+  ROWS.forEach(function(id){ var t=tm[id], r=res.tasks[id];
+    var preds = t.preds.map(function(p){ return p.id + (p.kind==='preferential'?' <span class="muted">(planned)</span>':''); }).join(', ') || '&#8212;';
+    if(id==='E') preds += '<br><span class="muted">technical: C</span>';
+    var pr = t.prereq;
+    h += '<tr><td><span class="tid'+(r.critical?'':' nc')+'">'+id+'</span></td><td><b>'+esc(t.name)+'</b>'+(t.note?'<div class="pre">'+esc(t.note)+'</div>':'')+'</td><td class="num"><b>'+t.dur+'</b></td><td>'+preds+'</td><td>'+t.vessels.map(chip).join('')+'</td>'+
+      '<td class="num">Day '+r.ES+'&#8211;'+r.EF+'</td><td class="num">'+r.TF+' d</td>'+
+      '<td class="pre"><b>Equip:</b> '+esc(pr.equipment)+' &#183; <b>People:</b> '+esc(pr.personnel)+' &#183; <b>Permits:</b> '+esc(pr.permits)+' &#183; <b>Materials:</b> '+esc(pr.materials)+(pr.host&&pr.host!=='-'?' &#183; <b>Host/interface:</b> '+esc(pr.host):'')+'</td></tr>';
+  });
+  h += '</tbody></table>';
+  $('tasktable').innerHTML = h;
+  var g = '<div style="border:0;background:none;padding:6px 0;font-weight:700;color:#4A2B6B">Readiness gates (start no earlier than):</div>';
+  for(var k in C.GATES){ var G=C.GATES[k]; g += '<div><b>'+G.task+'</b> &#8592; '+esc(G.label)+': <b>Day '+G.day+'</b></div>'; }
+  g += '<div>Call-off: '+chip('CSV2')+' not in baseline, '+V.CSV2.mobLeadDays+'-day lead, $'+V.CSV2.rate/1000+'k/day</div>';
+  $('gates').innerHTML = g;
+}
+
+// ------------------------------------------------------------ Gantt
+function renderGantt(el, o){
+  // o: { main: evaluation, ghost: evaluation|null, ghostLabel, mainLabel, eventTask, markers:[] }
+  var E=o.main, G=o.ghost, tmM=tmap(E.plan), tmB=tmap(B.plan);
+  var vrows = C.VESSEL_ORDER.filter(function(v){ return E.stats[v].days>0 || (G && G.stats[v].days>0) || E.stats[v].intervals.length; });
+  var extra = o.extraHire || {};
+  Object.keys(extra).forEach(function(v){ if(vrows.indexOf(v)<0) vrows.push(v); });
+  vrows.sort(function(a,b){ return C.VESSEL_ORDER.indexOf(a)-C.VESSEL_ORDER.indexOf(b); });
+  var maxDay = Math.max(E.finish, G?G.finish:0); (o.markers||[]).forEach(function(m){ maxDay=Math.max(maxDay,m.day); });
+  maxDay = Math.ceil((maxDay+2)/2)*2;
+  var W=1480, LW=330, RW=190, CW=W-LW-RW, sc=CW/maxDay, RH=33, top=52, nT=ROWS.length, sepH=40;
+  var H = top + nT*RH + sepH + vrows.length*RH + 34;
+  var X=function(d){ return LW + d*sc; };
+  var s = svg(W,H);
+  s += '<defs><pattern id="hatch'+el+'" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="#fff"/><line x1="0" y1="0" x2="0" y2="8" stroke="#BDB3CF" stroke-width="3"/></pattern>'+
+       '<pattern id="rh'+el+'" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><rect width="8" height="8" fill="#E0475B"/><line x1="0" y1="0" x2="0" y2="8" stroke="#F49AA6" stroke-width="3"/></pattern></defs>';
+  // grid
+  for(var d=0; d<=maxDay; d++){
+    var x=X(d), major = d%2===0;
+    s += '<line x1="'+x+'" y1="'+(top-6)+'" x2="'+x+'" y2="'+(H-30)+'" stroke="'+(d%7===0?'#D9D1E8':'#F0ECF6')+'" stroke-width="1"/>';
+    if(major) s += '<text x="'+x+'" y="'+(top-14)+'" text-anchor="middle" font-size="13" fill="#6B6280">'+d+'</text>';
+    if(d%7===0) s += '<text x="'+x+'" y="'+(top-32)+'" text-anchor="middle" font-size="12" fill="#9A90AE">'+dateStr(d)+'</text>';
+  }
+  s += '<text x="'+(LW-12)+'" y="'+(top-14)+'" text-anchor="end" font-size="13" fill="#6B6280" font-weight="700">Day</text>';
+  s += '<text x="12" y="'+(top-14)+'" font-size="14" fill="#4A2B6B" font-weight="800">TASKS</text>';
+  if(o.mainLabel) s += '<text x="12" y="'+(top-34)+'" font-size="13.5" fill="#4A2B6B" font-weight="700">'+esc(o.mainLabel.length>36?o.mainLabel.slice(0,35)+'\u2026':o.mainLabel)+'</text>';
+  ROWS.forEach(function(id,i){
+    var y=top+i*RH, t=tmM[id], r=E.res.tasks[id], crit=r.critical;
+    if(i%2===0) s += '<rect x="0" y="'+y+'" width="'+W+'" height="'+RH+'" fill="#FBFAFE"/>';
+    s += '<text x="12" y="'+(y+21)+'" font-size="14.5" fill="#231A33"><tspan font-weight="800" fill="'+(crit?'#7B3FE4':'#3BA3C6')+'">'+id+'</tspan>  '+esc(t.short||t.name)+'</text>';
+    if(G){ var g=G.res.tasks[id]; s += '<rect x="'+X(g.ES)+'" y="'+(y+3)+'" width="'+(g.EF-g.ES)*sc+'" height="6" rx="2" fill="#CFC6DE"/>'; }
+    var col = crit?'#7B3FE4':'#3BA3C6', baseDur = tmB[id].dur, x0=X(r.ES), w=(r.EF-r.ES)*sc;
+    s += '<rect x="'+x0+'" y="'+(y+10)+'" width="'+w+'" height="18" rx="4" fill="'+col+'"/>';
+    if(t.dur>baseDur && o.showDelay){ var dw=(t.dur-baseDur)*sc; var ds = (id===o.eventTask) ? (r.ES+(o.onset||1)) : r.EF-(t.dur-baseDur);
+      if(id===o.eventTask) s += '<rect x="'+X(ds)+'" y="'+(y+10)+'" width="'+dw+'" height="18" fill="url(#rh'+el+')"/>'; }
+    if(r.gated && r.ES>r.predEF) s += '<line x1="'+X(r.predEF)+'" y1="'+(y+19)+'" x2="'+x0+'" y2="'+(y+19)+'" stroke="#E39B22" stroke-width="2.5" stroke-dasharray="4 3"/><circle cx="'+x0+'" cy="'+(y+19)+'" r="4" fill="#E39B22"/>';
+    s += '<text x="'+(x0+6)+'" y="'+(y+24)+'" font-size="12.5" fill="#fff" font-weight="700">'+(w>34?(t.dur+'d'):'')+'</text>';
+    if(G){ var gs=G.res.tasks[id], sh=r.EF-gs.EF; if(sh!==0) s += '<text x="'+(X(r.EF)+6)+'" y="'+(y+24)+'" font-size="13.5" font-weight="800" fill="'+(sh>0?'#E0475B':'#1F9D6B')+'">'+(sh>0?'+':'')+sh+'d</text>'; }
+    if(t.vessels.join()!==tmB[id].vessels.join()) s += '<text x="'+(X(r.EF)+(G&&G.res.tasks[id].EF!==r.EF?46:6))+'" y="'+(y+24)+'" font-size="12.5" font-weight="700" fill="#C8288C">'+(t.vessels.length? 'on '+t.vessels.map(function(v){return V[v].name;}).join(', ') : 'by CSV 2')+'</text>';
+  });
+  var vy0 = top + nT*RH + sepH;
+  s += '<text x="12" y="'+(vy0-12)+'" font-size="14" fill="#4A2B6B" font-weight="800">VESSEL SPREADS (on hire)</text>';
+  s += '<text x="'+(W-8)+'" y="'+(vy0-12)+'" text-anchor="end" font-size="13" fill="#6B6280" font-weight="700">'+(G?'Cost (change)':'Spread cost')+'</text>';
+  vrows.forEach(function(v,i){
+    var y=vy0+i*RH, st=E.stats[v], col=VCOL[v];
+    if(i%2===0) s += '<rect x="0" y="'+y+'" width="'+W+'" height="'+RH+'" fill="#FBFAFE"/>';
+    s += '<text x="12" y="'+(y+21)+'" font-size="14.5" font-weight="700" fill="'+col+'">'+esc(V[v].name)+'</text><text x="'+(LW-12)+'" y="'+(y+21)+'" text-anchor="end" font-size="12.5" fill="#6B6280">$'+V[v].rate/1000+'k/d</text>';
+    if(G && G.stats[v].start!==null){ var gb=G.stats[v]; s += '<rect x="'+X(gb.start)+'" y="'+(y+3)+'" width="'+(gb.end-gb.start)*sc+'" height="6" rx="2" fill="#CFC6DE"/>'; }
+    if(st.start!==null){
+      s += '<rect x="'+X(st.start)+'" y="'+(y+10)+'" width="'+(st.end-st.start)*sc+'" height="18" rx="4" fill="url(#hatch'+el+')" stroke="'+col+'" stroke-width="1.5"/>';
+      st.intervals.forEach(function(iv){ s += '<rect x="'+X(iv[0])+'" y="'+(y+10)+'" width="'+(iv[1]-iv[0])*sc+'" height="18" fill="'+col+'"/>'; });
+      st.intervals.forEach(function(iv){ if((iv[1]-iv[0])*sc>22) s += '<text x="'+(X(iv[0])+(iv[1]-iv[0])*sc/2)+'" y="'+(y+24)+'" text-anchor="middle" font-size="12" fill="#fff" font-weight="700">'+iv[2]+'</text>'; });
+      if(st.offhire){ var oh=st.offhire; s += '<rect x="'+X(oh.from)+'" y="'+(y+8)+'" width="'+(oh.to-oh.from)*sc+'" height="22" fill="#fff" stroke="#1F9D6B" stroke-width="2" stroke-dasharray="5 3"/><text x="'+X((oh.from+oh.to)/2)+'" y="'+(y+24)+'" text-anchor="middle" font-size="12" fill="#1F9D6B" font-weight="800">off-hire '+oh.days+'d</text>'; }
+    }
+    if(st.fixedDays){ var fs=st.fixedStart||0; s += '<rect x="'+X(fs)+'" y="'+(y+10)+'" width="'+st.fixedDays*sc+'" height="18" rx="4" fill="'+col+'" opacity=".55"/><text x="'+(X(fs+st.fixedDays)+6)+'" y="'+(y+24)+'" font-size="12" fill="'+col+'" font-weight="700">released: min charter '+st.fixedDays+'d</text>'; }
+    if(extra[v]){ var ex=extra[v]; s += '<rect x="'+X(ex.start)+'" y="'+(y+10)+'" width="'+ex.days*sc+'" height="18" rx="4" fill="'+col+'" opacity=".75"/><text x="'+(X(ex.start)-6)+'" y="'+(y+24)+'" text-anchor="end" font-size="12" fill="'+col+'" font-weight="700">'+esc(ex.label)+'</text>'; }
+    var cost = st.cost + (extra[v]?extra[v].days*V[v].rate:0);
+    var txt = money(cost) + ' <tspan fill="#6B6280" font-size="12.5">('+(st.days+(extra[v]?extra[v].days:0))+' d)</tspan>';
+    if(G){ var dc = cost - G.stats[v].cost; if(dc!==0) txt += ' <tspan fill="'+(dc>0?'#E0475B':'#1F9D6B')+'" font-weight="800">'+sgnMoney(dc)+'</tspan>'; }
+    s += '<text x="'+(W-8)+'" y="'+(y+22)+'" text-anchor="end" font-size="14.5" font-weight="700" fill="#231A33">'+txt+'</text>';
+  });
+  // markers
+  var mks = (o.markers||[]);
+  mks.forEach(function(m,i){ var x=X(m.day);
+    s += '<line x1="'+x+'" y1="'+(top-4)+'" x2="'+x+'" y2="'+(H-28)+'" stroke="'+m.color+'" stroke-width="2.2" stroke-dasharray="'+(m.dash||'6 4')+'"/>';
+    s += '<text x="'+x+'" y="'+(H-10)+'" text-anchor="'+(m.anchor||'middle')+'" font-size="13" font-weight="800" fill="'+m.color+'">'+esc(m.label)+'</text>'; });
+  s += '</svg>';
+  $(el).innerHTML = s;
+}
+
+// ------------------------------------------------------------ 2. baseline
+function renderBaseline(){
+  var idle=0, busy=0; C.VESSEL_ORDER.forEach(function(v){ idle+=B.stats[v].idle; });
+  $('basekpis').innerHTML =
+    kpi('Baseline duration', B.finish+' days', 'Day 0 '+dateStr(0)+' &#8594; Day '+B.finish+' '+dateStr(B.finish), 'violet') +
+    kpi('Vessel spread cost', money(B.vesselCost), C.VESSEL_ORDER.filter(function(v){return B.stats[v].days;}).map(function(v){ return V[v].name.replace('Supply vessel','Supply').replace('Fast crew boat','FCB')+' '+money(B.stats[v].cost,1); }).join(' &#183; ')) +
+    kpi('Critical path', B.res.criticalPath.join('&#8250;'), 'zero total float; I and H have float', 'violet') +
+    kpi('Planned standby', idle+' vessel-days', 'idle inside hire windows (paid)');
+  renderGantt('basegantt', { main:B, markers:[{day:B.finish, label:'Baseline finish Day '+B.finish, color:'#4A2B6B', anchor:'end'}], mainLabel:'Baseline plan' });
+}
+function kpi(l,v,s,cls){ return '<div class="kpi '+(cls||'')+'"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="s">'+(s||'')+'</div></div>'; }
+
+// ------------------------------------------------------------ 3. scenarios
+function renderScenarioButtons(){
+  var h='';
+  C.SCENARIOS.forEach(function(sc){
+    var d = sc.gate ? 'gate &#8594; Day '+sc.gate.day : '+'+sc.delayDays+' d on '+sc.task;
+    h += '<button data-s="'+sc.id+'"><div class="code">'+sc.id+'</div><div class="t">'+esc(sc.title)+'</div><div class="m">'+d+' &#183; P='+Math.round(sc.probability*100)+'%</div></button>';
+  });
+  h += '<button data-s="CUSTOM"><div class="code">CUSTOM</div><div class="t">Build your own event</div><div class="m">pick task, delay, vessel</div></button>';
+  $('scenbtns').innerHTML = h;
+  Array.prototype.forEach.call($('scenbtns').querySelectorAll('button'), function(b){ b.onclick=function(){ selectScenario(b.getAttribute('data-s')); }; });
+  $('cTask').innerHTML = ROWS.map(function(id){ return '<option value="'+id+'"'+(id==='F'?' selected':'')+'>'+id+' &#8211; '+esc(tmap(B.plan)[id].name)+'</option>'; }).join('');
+  $('cVessel').innerHTML = C.VESSEL_ORDER.filter(function(v){return V[v].inBaseline;}).map(function(v){ return '<option value="'+v+'">'+esc(V[v].name)+'</option>'; }).join('');
+  $('cTask').onchange = function(){ var t=tmap(B.plan)[$('cTask').value]; if(t.vessels.length) $('cVessel').value=t.vessels[0]; runCustom(); };
+  ['cDelay','cVessel','cType','cCnq'].forEach(function(id){ $(id).onchange = runCustom; });
+  $('cRun').onclick = runCustom;
+}
+function currentEvent(){
+  if(state.scen!=='CUSTOM') return C.scenarioById(state.scen);
+  var delay = Math.max(1, Math.min(20, parseInt($('cDelay').value,10)||1));
+  return C.makeCustom($('cTask').value, delay, $('cVessel').value, $('cType').value, Math.max(0,(parseFloat($('cCnq').value)||0))*1000);
+}
+function runCustom(){ if(state.scen==='CUSTOM') analyse(); }
+function selectScenario(id){
+  state.scen = id;
+  Array.prototype.forEach.call($('scenbtns').querySelectorAll('button'), function(b){ b.classList.toggle('on', b.getAttribute('data-s')===id); });
+  $('custom').classList.toggle('on', id==='CUSTOM');
+  analyse();
+}
+function analyse(){
+  var ev = currentEvent();
+  state.analysis = C.analyse(ev);
+  state.sel = state.analysis.options[0] ? state.analysis.options[0].key : null;
+  renderImpact(); renderOptions(); resetFlow();
+}
+
+function renderImpact(){
+  var A=state.analysis, ev=A.ev, im=A.impact;
+  var where = ev.gate ? 'Readiness gate <b>'+esc(C.GATES[ev.gate.id].label)+'</b> moves Day '+C.GATES[ev.gate.id].day+' &#8594; Day '+ev.gate.day+' (Task '+ev.task+')'
+                      : 'Task <b>'+ev.task+'</b> +'+ev.delayDays+' days';
+  $('eventbox').innerHTML = '<b>'+ev.id+' &#183; '+esc(ev.title)+'</b> &nbsp;'+esc(ev.cause)+'<br><span class="muted">'+where+' &#183; affected: '+ev.vessels.map(function(v){return V[v].name;}).join(', ')+' &#183; probability '+Math.round(ev.probability*100)+'% &#183; decision point Day '+A.t0+'</span>';
+  $('impactkpis').innerHTML =
+    kpi('Schedule days lost', '+'+im.daysLost+' d', 'finish Day '+B.finish+' &#8594; Day '+im.finish+' ('+dateStr(im.finish)+')', 'red') +
+    kpi('Value Destruction', money(im.vd), 'vessel standby/extension '+money(im.vdVessel)+' + CNQ '+money(im.cnq), 'red') +
+    kpi('Extra vessel-days', im.perVessel.reduce(function(s,p){return s+p.extraDays;},0)+' d', 'paid standby / extended hire') +
+    kpi('Risk-weighted VD', money(im.expectedVD), 'P '+Math.round(ev.probability*100)+'% &#215; VD (for risk register)');
+  renderGantt('impactgantt', { main:im.eval, ghost:B, eventTask:ev.task, onset:ev.onset, showDelay:true, mainLabel:'Impacted plan (grey = baseline)',
+    markers:[{day:B.finish,label:'Baseline Day '+B.finish,color:'#4A2B6B',anchor:'end'},{day:im.finish,label:'Impacted Day '+im.finish,color:'#E0475B',anchor:'start'}] });
+  var h='';
+  im.cascade.forEach(function(c){
+    h += '<li><span class="tid'+(c.critical?'':' nc')+'" style="width:24px;height:24px;font-size:13px'+(c.origin?';background:#E0475B':'')+'">'+c.id+'</span> '+esc(c.name)+': '+
+      (c.origin ? '<b style="color:#E0475B">event origin</b>, ' : '') + 'finish Day '+c.baseEF+' &#8594; '+c.newEF+' <span class="sh">'+(c.shiftFinish>0?'+':'')+c.shiftFinish+' d</span></li>';
+  });
+  var unaffected = ROWS.filter(function(id){ return !im.cascade.some(function(c){return c.id===id;}); });
+  h += '<li class="muted" style="margin-top:8px">Not affected: '+unaffected.join(', ')+'</li>';
+  $('cascade').innerHTML = h;
+  var t='<table><thead><tr><th>Vessel</th><th class="num">Rate/day</th><th class="num">Baseline days</th><th class="num">Impacted days</th><th class="num">Extra days</th><th class="num">VD</th></tr></thead><tbody>';
+  im.perVessel.forEach(function(p){ if(!p.baseDays && !p.newDays) return;
+    t += '<tr><td>'+chip(p.id)+'</td><td class="num">$'+p.rate/1000+'k</td><td class="num">'+p.baseDays+'</td><td class="num">'+p.newDays+'</td><td class="num"><b>'+(p.extraDays>0?'+':'')+p.extraDays+'</b></td><td class="num"><b style="color:'+(p.vd>0?'#E0475B':'inherit')+'">'+money(p.vd)+'</b></td></tr>'; });
+  (ev.cnq||[]).forEach(function(c){ t += '<tr><td colspan="5">CNQ: '+esc(c.label)+'</td><td class="num"><b style="color:#E0475B">'+money(c.cost)+'</b></td></tr>'; });
+  t += '<tr><td colspan="5"><b>Total Value Destruction</b></td><td class="num"><b style="color:#E0475B;font-size:18px">'+money(im.vd)+'</b></td></tr></tbody></table>';
+  $('vdtable').innerHTML = t;
+}
+
+// ------------------------------------------------------------ 4. options
+function readinessSummary(o){
+  if(!o.reqs.length) return '<span class="rd muted">no prerequisites</span>';
+  var r=0,l=0,b=0; o.reqs.forEach(function(q){ if(q.status==='ready') r++; else if(q.status==='lead') l++; else b++; });
+  return '<span class="rd"><span class="ok">'+r+' ready</span>'+(l?' &#183; <span class="fl">'+l+' lead-time gate</span>':'')+(b?' &#183; <span class="bl">'+b+' blocked</span>':'')+'</span>';
+}
+function recommended(){ var ok=state.analysis.options.filter(function(o){return !o.blocked;}); return C.rank(ok,'cost')[0]; }
+function renderOptions(){
+  var A=state.analysis, opts=C.rank(A.options, state.sort), rec=recommended(), im=A.impact;
+  $('sortCost').classList.toggle('on', state.sort==='cost'); $('sortDays').classList.toggle('on', state.sort==='days');
+  var exec = opts.filter(function(o){ return !o.blocked && o.key!=='WAIT'; });
+  $('optcount').innerHTML = '<span class="muted">'+opts.length+' options evaluated &#183; '+opts.filter(function(o){return o.blocked;}).length+' blocked by readiness</span>';
+  var yes = rec && rec.key!=='WAIT' && rec.netSaving>0;
+  var needs = rec ? rec.reqs.length+' requirements: '+rec.reqs.filter(function(q){return q.status==='ready';}).length+' ready'+(rec.reqs.some(function(q){return q.status==='lead';})?', '+rec.reqs.filter(function(q){return q.status==='lead';}).length+' with lead time (built into the schedule)':'') : '';
+  $('answer').innerHTML =
+    '<div class="ans yes"><div class="q">Do we have a solution?</div><div class="big">'+(yes?'YES':'NO')+'</div><div class="a" style="font-size:14px">'+exec.length+' executable options</div></div>'+
+    '<div class="ans"><div class="q">What is it?</div><div class="a">'+(rec?esc(rec.name):'&#8212;')+'</div></div>'+
+    '<div class="ans"><div class="q">What is needed to execute?</div><div class="a">'+needs+'; cost to execute '+(rec?money(rec.optionCost):'')+'</div></div>'+
+    '<div class="ans"><div class="q">Impact on schedule &amp; cost</div><div class="a">'+(rec?('Days lost '+im.daysLost+' &#8594; <b>'+rec.daysLost+'</b> ('+rec.daysSaved+' d recovered). Total outcome '+money(rec.total)+' vs '+money(im.vd)+' if we wait: <b style="color:#1F9D6B">net saving '+money(rec.netSaving)+'</b>'):'')+'</div></div>';
+  var c='';
+  opts.slice(0,3).forEach(function(o,i){
+    c += '<div class="ocard'+(o.key===state.sel?' sel':'')+'" data-k="'+o.key+'">'+(rec&&o.key===rec.key?'<span class="badge">RECOMMENDED</span>':'')+
+      '<div class="rk">#'+(i+1)+' '+(state.sort==='days'?'by days lost':'by total cost')+'</div><div class="nm">'+esc(o.name)+'</div>'+
+      '<div class="mx"><div>Total outcome<b>'+money(o.total)+'</b></div><div>Days lost<b class="'+(o.daysLost>0?'r':'g')+'">'+o.daysLost+' d</b></div>'+
+      '<div>Net saving<b class="g">'+money(o.netSaving)+'</b></div><div>Cost to execute<b>'+money(o.optionCost)+'</b></div></div>'+
+      '<div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">'+readinessSummary(o)+'<span class="risk '+o.risk.level+'">'+o.risk.level+' risk</span></div></div>';
+  });
+  $('cards').innerHTML = c;
+  var t='<table><thead><tr><th class="num">#</th><th>Recovery option</th><th class="num">Days lost</th><th class="num">Days saved</th><th class="num">Cost to execute</th><th class="num">Remaining VD</th><th class="num">Total outcome</th><th class="num">VD avoided</th><th class="num">Net saving</th><th>Readiness</th><th>Risk</th></tr></thead><tbody>';
+  var n=0;
+  opts.forEach(function(o){
+    t += '<tr class="opt'+(o.key===state.sel?' sel':'')+(o.blocked?' blk':'')+'" data-k="'+o.key+'"><td class="num"><b>'+(o.blocked?'&#8212;':++n)+'</b></td><td>'+(rec&&o.key===rec.key?'<span class="chip" style="background:#C8288C">RECOMMENDED</span> ':'')+(o.key==='WAIT'?'<span class="chip" style="background:#9A90AE">REFERENCE</span> ':'')+(o.blocked?'<span class="chip" style="background:#E0475B">BLOCKED</span> ':'')+esc(o.name)+'</td>'+
+      '<td class="num"><b style="color:'+(o.daysLost>0?'#E0475B':'#1F9D6B')+'">'+o.daysLost+'</b></td><td class="num">'+o.daysSaved+'</td><td class="num">'+money(o.optionCost)+'</td><td class="num">'+money(o.vdRemaining)+'</td><td class="num"><b>'+money(o.total)+'</b></td><td class="num">'+money(o.vdAvoided)+'</td>'+
+      '<td class="num"><b style="color:'+(o.netSaving>0?'#1F9D6B':o.netSaving<0?'#E0475B':'inherit')+'">'+money(o.netSaving)+'</b></td><td>'+readinessSummary(o)+'</td><td><span class="risk '+o.risk.level+'">'+o.risk.level+'</span></td></tr>';
+  });
+  t += '</tbody></table>';
+  $('opttable').innerHTML = t;
+  Array.prototype.forEach.call(document.querySelectorAll('#cards .ocard, #opttable tr.opt'), function(e){ e.onclick=function(){ selectOption(e.getAttribute('data-k')); }; });
+  renderDetail();
+}
+function selectOption(k){ state.sel=k; renderOptions(); resetFlow(); }
+function getSel(){ var A=state.analysis; for(var i=0;i<A.options.length;i++) if(A.options[i].key===state.sel) return A.options[i]; return null; }
+function renderDetail(){
+  var o=getSel(), A=state.analysis, im=A.impact; if(!o){ $('detail').innerHTML=''; return; }
+  var rec = recommended();
+  var h='<h3>'+(o.blocked?'<span class="chip" style="background:#E0475B">BLOCKED</span> ':'')+(rec&&o.key===rec.key?'<span class="chip" style="background:#C8288C">RECOMMENDED</span> ':'')+esc(o.name)+'</h3><p class="muted" style="margin:0 0 12px">'+esc(o.desc)+'</p>';
+  h += '<div class="kpis">'+kpi('Recovered finish','Day '+o.finish, dateStr(o.finish)+' &#183; '+o.daysLost+' d vs baseline', o.daysLost>0?'':'green')+
+       kpi('Days saved', o.daysSaved+' d', 'vs '+im.daysLost+' d lost if we wait', 'green')+
+       kpi('Cost to execute', money(o.optionCost), o.costs.length+' cost item(s)')+
+       kpi('Remaining VD', money(o.vdRemaining), 'VD avoided '+money(o.vdAvoided))+
+       kpi('Net saving', money(o.netSaving), 'vs waiting ('+money(im.vd)+')', o.netSaving>0?'green':'red')+'</div>';
+  h += '<div class="grid2"><div><h3 style="margin-top:0">Requirements to execute (readiness check)</h3><ul class="checklist">';
+  if(!o.reqs.length) h += '<li><span class="ic ready">&#10003;</span><div>No prerequisites: spreads stand by</div></li>';
+  o.reqs.forEach(function(q){ var ic = q.status==='ready'?'&#10003;':q.status==='lead'?'!':'&#10005;';
+    h += '<li><span class="ic '+q.status+'">'+ic+'</span><div><b>'+esc(q.label)+'</b><div class="tx">'+esc(q.text)+'</div></div></li>'; });
+  h += '</ul></div><div><h3 style="margin-top:0">Cost to execute &amp; risk</h3><table><tbody>';
+  if(!o.costs.length) h += '<tr><td>No direct cost</td><td class="num">$0</td></tr>';
+  o.costs.forEach(function(c){ h += '<tr><td>'+esc(c.label)+'</td><td class="num">'+money(c.amount)+'</td></tr>'; });
+  Object.keys(o.credits||{}).forEach(function(v){ var cr=o.credits[v]; h += '<tr><td class="muted">'+V[v].name+' off-hire credit '+cr.days+' d (in remaining VD)</td><td class="num" style="color:#1F9D6B">-'+money(cr.saving)+'</td></tr>'; });
+  h += '<tr><td><b>Total cost to execute</b></td><td class="num"><b>'+money(o.optionCost)+'</b></td></tr></tbody></table>'+
+       '<p style="margin:12px 0 0"><span class="risk '+o.risk.level+'">'+o.risk.level+' safety/execution risk</span> '+esc(o.risk.note)+'</p></div></div>';
+  h += '<h3>Recovered schedule (grey = baseline; red line = finish if we wait)</h3><div class="svgbox" id="recgantt"></div>';
+  $('detail').innerHTML = h;
+  var extra = {};
+  if(o.parts.indexOf('CSV2')>=0){ var cv=o.costs.filter(function(c){return /^CSV 2 hire/.test(c.label);})[0]; var days=Math.round(cv.amount/V.CSV2.rate); extra.CSV2={ start:A.t0, days:days, label:'CSV 2 call-off '+days+'d (in cost to execute)' }; }
+  if(o.parts.indexOf('SPARE')>=0 && o.costs.some(function(c){return /early call-out/.test(c.label);})) extra.FCB={ start:A.t0, days:2, label:'spare run 2d (in cost to execute)' };
+  renderGantt('recgantt', { main:o.eval, ghost:B, eventTask:A.ev.task, onset:A.ev.onset, showDelay:false, extraHire:extra, mainLabel:'Recovered plan',
+    markers:[{day:B.finish,label:'Baseline Day '+B.finish,color:'#4A2B6B',anchor:'end'},{day:im.finish,label:'Wait: Day '+im.finish,color:'#E0475B',anchor:'start'}].concat(o.finish!==B.finish && o.finish!==im.finish?[{day:o.finish,label:'Recovered Day '+o.finish,color:'#1F9D6B',anchor:o.finish<im.finish?'end':'start',dash:'2 0'}]:[]) });
+}
+
+// ------------------------------------------------------------ 5. decision flow
+var APPLIED = { WAIT:'Equipment reliability log', SPARE:'Critical-spares list (shore base)', RESEQ_ED:'Readiness register + planning template (E after C)', RESEQ_DC:'SIMOPS plan library',
+  SWAP:'Back-up lift plan library', CSV2:'Vessel call-off strategy', SHIFT:'Execution plan: relief-crew roster', EXPEDITE:'Readiness register: procurement lead times', NEGOTIATE:'Host interface agreement', OFFHIRE:'Charter strategy: off-hire/recall clauses' };
+var timers=[];
+function resetFlow(){
+  timers.forEach(clearTimeout); timers=[];
+  var o=getSel();
+  Array.prototype.forEach.call(document.querySelectorAll('#flow .st'), function(e,i){ e.className='st'+(i<2?' done':i===2?' cur':''); });
+  $('omchoice').textContent = o ? 'selected: '+(o.name.length>46?o.name.slice(0,45)+'\u2026':o.name) : 'select an option';
+  $('lesson').classList.remove('on');
+  $('approve').disabled = !o || o.blocked;
+  $('approvehint').textContent = o && o.blocked ? 'Blocked option: prerequisites not met, it cannot be approved.' : (o? 'Selected: '+o.name : '');
+}
+function approve(){
+  var o=getSel(), A=state.analysis; if(!o || o.blocked) return;
+  var st=document.querySelectorAll('#flow .st');
+  [2,3,4].forEach(function(i,k){ timers.push(setTimeout(function(){
+    st[i].className='st done'; if(st[i+1]) st[i+1].className='st cur';
+    if(i===4) showLesson(o,A);
+  }, 350*(k+1))); });
+}
+function showLesson(o,A){
+  var applied = o.parts.map(function(k){ return APPLIED[k]; }).join(' + ');
+  var stamp = new Date(); var hh=('0'+stamp.getHours()).slice(-2)+':'+('0'+stamp.getMinutes()).slice(-2);
+  $('lesson').innerHTML = '<b style="color:#C8288C">Lesson captured &#183; '+A.ev.id+' '+esc(A.ev.title)+'</b><br>OM decision: <b>'+esc(o.name)+'</b> ('+o.daysLost+' d lost, net saving '+money(o.netSaving)+'). PMT actions the '+o.reqs.length+' requirement(s).<br>'+
+    'Lesson: '+esc(o.lesson)+'<br><b>Applied to:</b> '+esc(applied)+' &#8594; checked automatically in the next campaign plan.';
+  $('lesson').classList.add('on');
+  state.lessons.unshift({ t:hh, ev:A.ev.id+' '+A.ev.title, opt:o.name, saving:o.netSaving, applied:applied });
+  var h='<table><thead><tr><th>Time</th><th>Event</th><th>Decision</th><th class="num">Net saving</th><th>Applied to</th></tr></thead><tbody>';
+  state.lessons.slice(0,6).forEach(function(l){ h+='<tr><td>'+l.t+'</td><td>'+esc(l.ev)+'</td><td>'+esc(l.opt)+'</td><td class="num">'+money(l.saving)+'</td><td>'+esc(l.applied)+' <span class="chip" style="background:#1F9D6B">APPLIED</span></td></tr>'; });
+  $('lessonlog').innerHTML = h+'</tbody></table>';
+}
+
+// ------------------------------------------------------------ 6. how it works
+function renderHow(){
+  var items = [
+    ['1. Dependency graph (DAG)', 'Each task holds a duration, predecessors (technical or planned logic), vessels, prerequisites and readiness gates. A topological sort orders the tasks and rejects any loop.'],
+    ['2. Critical Path Method', 'Forward pass: <code>ES = max(EF of predecessors, gate day)</code>, <code>EF = ES + duration</code>. Backward pass: <code>LF = min(LS of successors)</code>, <code>LS = LF &#8722; duration</code>. Total float <code>= LS &#8722; ES</code>; zero float = critical path.'],
+    ['3. Vessel spread cost', 'A vessel is on hire from the start of its first task to the end of its last task. <code>Cost = hire days &#215; day rate</code>; idle/standby days inside the window are paid in full. Released vessels pay their minimum charter.'],
+    ['4. Failure event &amp; cascade', 'An event has a task, a delay (repair or wait) or a moved readiness gate, affected vessels and a probability. CPM is re-run; every task whose dates move is listed, with new finish and vessel standby.'],
+    ['5. Value Destruction', '<code>VD = &#931; (impacted hire days &#8722; baseline hire days) &#215; day rate + CNQ</code> (rework, re-survey, re-mobilisation). Risk-weighted VD = probability &#215; VD.'],
+    ['6. Recovery options &amp; readiness', 'Templates (spare by FCB, re-sequence, swap lift, call off CSV 2, shift pattern, off-hire, expedite) are applied to the impacted plan, singly and in pairs. Each requirement is checked: not-ready items add a start-no-earlier-than gate (lead time) or block the option.'],
+    ['7. Ranking', '<code>Total outcome = remaining VD + cost to execute</code>, lowest first (toggle: fewest days lost). <code>Net saving = VD if we wait &#8722; total outcome</code>. Combinations that add nothing over a single option are dropped.'],
+    ['8. Decision &amp; learning loop', 'The OM approves an option, the PMT executes the checklist, and the lesson is written to the register it changes (spares list, readiness register, lift-plan library), so the next plan applies it.'],
+    ['Assumptions (mock)', 'Whole days; finish-to-start logic; full day rate during breakdown (no off-hire claim); CSV 2 is a call-off with a 3-day lead; HLV 4-day minimum charter; costs cover vessel spreads and listed CNQ only.']
+  ];
+  $('how').innerHTML = items.map(function(i){ return '<div><b>'+i[0]+'</b><p>'+i[1]+'</p></div>'; }).join('');
+}
+
+// ------------------------------------------------------------ init
+renderNetwork(); renderBaseline(); renderScenarioButtons(); renderHow();
+$('sortCost').onclick=function(){ state.sort='cost'; renderOptions(); };
+$('sortDays').onclick=function(){ state.sort='days'; renderOptions(); };
+$('approve').onclick=approve;
+var hash = (location.hash||'').match(/scen=(\w+)/); selectScenario(hash?hash[1]:'E1');
+var opt = (location.hash||'').match(/opt=([\w+]+)/); if(opt){ selectOption(opt[1]); }
+if(/approve/.test(location.hash||'')) { var o=getSel(); if(o) { document.querySelectorAll('#flow .st').forEach(function(e){e.className='st done';}); showLesson(o,state.analysis); } }
+})();
+</script>
+</body>
+</html>
