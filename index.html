@@ -387,6 +387,189 @@ label.f .hint{ display:block; font-weight:400; color:var(--ink-3); font-size:11.
   .brief-sheet{ border:0; padding:0; }
 }
 
+/* ---------- flowcharts: campaign task flow + recovery flow */
+.flow-wrap,.sflow-wrap{ overflow-x:auto; margin:0 -6px; padding:2px 6px 4px; }
+.flow{ position:relative; display:grid; column-gap:22px; row-gap:28px; padding:8px 14px 4px 24px; min-width:820px; }
+.fl-lanebg{ background:var(--surface-2); border:1px solid var(--line-2); border-radius:14px; margin:-8px -9px -6px; z-index:0; }
+.fl-lanebg.sys{ background:#F5F9FD; }
+.fl-lh{ display:flex; align-items:center; gap:8px; padding:2px 0 0; z-index:2; min-width:0; }
+.fl-lh > div{ min-width:0; }
+.fl-lh b{ display:block; font-size:12.5px; font-weight:650; }
+.fl-lh span{ display:block; font-size:11px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fl-li{ width:26px; height:26px; flex:none; border-radius:8px; background:#fff; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink-2); }
+.fl-li svg{ width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.fl-cell{ display:flex; flex-direction:column; gap:8px; justify-content:center; z-index:2; min-width:0; }
+.fl-node{ display:flex; flex-direction:column; gap:4px; text-align:left; width:100%; border:1px solid #DCD9F6; background:#fff; border-radius:12px; padding:8px 10px; cursor:pointer; box-shadow:0 1px 2px rgba(29,35,51,.05); transition:box-shadow .15s, border-color .15s, opacity .2s; animation:flin .45s ease backwards; animation-delay:var(--d,0ms); }
+.fl-node:hover{ box-shadow:0 0 0 3px rgba(91,95,199,.14), 0 6px 18px rgba(29,35,51,.10); border-color:var(--brand); }
+.fl-node.c{ background:#FFF4F7; border-color:#F0BCCB; }
+.fl-node.sys{ background:#F2F7FD; border-color:#CFE1F3; }
+.fl-r1{ display:flex; align-items:flex-start; gap:6px; }
+.fl-t{ flex:1; min-width:0; font-weight:620; font-size:12.5px; line-height:1.25; color:var(--ink); }
+.fl-bd{ display:flex; align-items:center; gap:4px; flex:none; margin-top:-1px; }
+.fl-bd:empty{ display:none; }
+.fl-s{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11px; color:var(--ink-3); }
+.fl-tag{ font-size:10px; font-weight:650; padding:0 6px; border-radius:99px; background:var(--lav-t); color:var(--lav-ink); white-space:nowrap; }
+.fl-tag.c{ background:#FBE0E8; color:var(--rose-ink); }
+.fl-m{ display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+.fl-m:empty{ display:none; }
+.fl-chip{ font-size:10.5px; font-weight:550; padding:1px 6px; border-radius:99px; background:var(--gray-t); color:var(--gray-ink); white-space:nowrap; }
+.fl-chip.hold{ background:var(--butter-t); color:var(--butter-ink); }
+.fl-gate{ display:flex; align-items:center; gap:9px; padding:6px 4px; justify-content:center; animation:flin .45s ease backwards; animation-delay:var(--d,0ms); transition:opacity .2s; cursor:default; }
+.fl-gate .dia{ width:16px; height:16px; flex:none; transform:rotate(45deg); border-radius:4px; background:var(--lav-t); border:1.6px solid #8F86DB; }
+.fl-gate b{ display:block; font-size:11.5px; font-weight:650; color:var(--lav-ink); line-height:1.2; }
+.fl-gate span{ display:block; font-size:10.5px; color:var(--ink-3); }
+.fl-end{ display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:linear-gradient(90deg,#E9F6F1,#F6FBF9); border:1px solid #C6E6D9; z-index:2; animation:flin .45s ease backwards; animation-delay:600ms; }
+.fl-end b{ display:block; font-size:13px; color:var(--mint-ink); }
+.fl-end span{ display:block; font-size:11.5px; color:var(--ink-3); }
+.fl-endi{ width:28px; height:28px; border-radius:50%; background:#fff; border:1px solid #C6E6D9; display:flex; align-items:center; justify-content:center; color:var(--mint-ink); flex:none; }
+.fl-endi svg{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.fl-svg,.sf-svg{ position:absolute; left:0; top:0; pointer-events:none; overflow:visible; z-index:1; }
+.fl-e{ fill:none; stroke-linecap:round; stroke-linejoin:round; transition:opacity .2s; }
+.fl-e.tech{ stroke:#A3AABC; stroke-width:1.6; }
+.fl-e.crit{ stroke:#D06A86; stroke-width:2.4; }
+.fl-e.pref{ stroke:#8F86DB; stroke-width:1.6; stroke-dasharray:6 4; }
+.fl-e.pref.crit,.fl-e.gate.crit{ stroke:#D06A86; stroke-width:2.2; }
+.fl-e.res.crit{ stroke:#D06A86; stroke-width:2.4; }
+.fl-e.res{ stroke:#B7BDCC; stroke-width:1.8; stroke-dasharray:.1 5; }
+.fl-e.gate{ stroke:#8F86DB; stroke-width:1.4; stroke-dasharray:3 3; }
+.fl-run{ fill:none; stroke:rgba(255,255,255,.75); stroke-width:1.6; stroke-dasharray:12 520; stroke-linecap:round; animation:flcomet 2.6s linear infinite; transition:opacity .2s; }
+.flow.hov .fl-e{ opacity:.14; } .flow.hov .fl-e.hl{ opacity:1; } .flow.hov .fl-run{ opacity:0; }
+.flow.hov .fl-node,.flow.hov .fl-gate{ opacity:.45; } .flow.hov .fl-node.hl,.flow.hov .fl-gate.hl{ opacity:1; }
+.fl-legend i.ln{ width:22px; height:0; border-radius:0; background:none; border-top:2px solid #A3AABC; vertical-align:3px; }
+.fl-legend i.ln.crit{ border-top:2.4px solid #D06A86; }
+.fl-legend i.ln.pref{ border-top:2px dashed #8F86DB; }
+.fl-legend i.ln.res{ border-top:2px dotted #B7BDCC; }
+.fl-legend i.ln.gate{ border-top:1.6px dashed #8F86DB; }
+.fl-legend i.ln.sel{ border-top:3.5px solid var(--brand); }
+.fl-legend i.ln.dot{ border-top:2px dotted #A3AABC; }
+.fl-legend i.ln.blk{ border-top:2px dotted #E3A3B5; }
+.fl-legend i.ln.hse{ border-top:2px dotted #E0A27E; }
+.fl-legend i.sw{ width:12px; height:12px; border-radius:4px; border:1px solid rgba(29,35,51,.08); }
+.fl-legend i.sw.k-pull{ background:var(--mint-t); } .fl-legend i.sw.k-logic{ background:var(--lav-t); } .fl-legend i.sw.k-move{ background:var(--sky-t); } .fl-legend i.sw.k-repair{ background:var(--peach-t); } .fl-legend i.sw.k-filler{ background:var(--sage-t); }
+.sflow{ position:relative; display:grid; column-gap:20px; row-gap:10px; align-items:center; }
+.sflow.wide{ grid-template-columns:150px 46px minmax(190px,1fr) 92px 222px; }
+.sflow.narrow{ grid-template-columns:132px 42px minmax(170px,1fr) 88px; min-width:560px; }
+.sf-head{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); align-self:end; }
+.sf-head.c{ text-align:center; }
+.sf-ev{ z-index:2; background:linear-gradient(180deg,#FFF3F6,#FFFFFF 70%); border:1px solid #F0C2CF; border-radius:14px; padding:10px 11px; display:flex; flex-direction:column; gap:4px; animation:flin .4s ease backwards; }
+.sf-eh{ display:flex; align-items:center; gap:6px; }
+.sf-id{ font-weight:750; font-size:12px; border-radius:8px; padding:2px 7px; }
+.sf-pulse{ width:8px; height:8px; border-radius:50%; background:#D06A86; margin-left:auto; animation:sfpulse 1.6s ease-out infinite; }
+.sf-ev b{ font-size:12.5px; line-height:1.3; font-weight:650; }
+.sf-ev > span{ font-size:11px; color:var(--ink-3); line-height:1.35; }
+.sf-ei{ font-size:11px; font-weight:650; color:var(--rose-ink); line-height:1.35; }
+.sf-el{ font-size:11px; color:var(--lav-ink); }
+.sf-dec{ z-index:2; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; font-size:10.5px; color:var(--ink-3); line-height:1.25; animation:flin .4s ease backwards; animation-delay:80ms; }
+.sf-dec .dia{ width:30px; height:30px; transform:rotate(45deg); border-radius:8px; background:#fff; border:2px solid var(--brand); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(91,95,199,.2); }
+.sf-dec .dia svg{ width:15px; height:15px; transform:rotate(-45deg); stroke:var(--brand); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.sf-opt{ z-index:2; text-align:left; width:100%; border:1px solid var(--line); background:#fff; border-radius:12px; padding:7px 10px; cursor:pointer; display:flex; flex-direction:column; gap:3px; transition:border-color .15s, box-shadow .15s, background .15s; animation:flin .4s ease backwards; animation-delay:var(--d,0ms); }
+.sf-opt:hover{ border-color:var(--brand); box-shadow:0 0 0 3px rgba(91,95,199,.12); }
+.sf-opt.sel{ border:2px solid var(--brand); background:var(--brand-t); padding:6px 9px; box-shadow:0 0 0 4px rgba(91,95,199,.10); }
+.sf-opt.blk{ background:#FBFBFD; border-style:dashed; }
+.sf-opt.blk .sf-ot{ color:var(--ink-3); }
+.sf-ot{ font-weight:600; font-size:12.5px; line-height:1.28; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.sf-om{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11px; color:var(--ink-3); }
+.sf-om .sf-sc{ margin-left:auto; font-size:11px; color:var(--brand-ink); background:#fff; border:1px solid var(--brand-t2); border-radius:99px; padding:0 7px; }
+.sf-sv{ color:var(--mint-ink); font-weight:650; }
+.sf-why{ color:var(--rose-ink); }
+.sf-out{ z-index:2; border-radius:10px; padding:5px 8px; border:1px solid var(--line); background:#fff; font-size:10.5px; line-height:1.25; animation:flin .4s ease backwards; animation-delay:300ms; }
+.sf-out b{ display:block; font-size:12px; }
+.sf-out.ok{ background:var(--mint-t); border-color:#C6E6D9; color:var(--mint-ink); }
+.sf-out.late{ background:var(--rose-t); border-color:#F0C2CF; color:var(--rose-ink); }
+.sf-out.exc{ background:var(--sky-t); border-color:#CFE1F3; color:var(--sky-ink); }
+.sf-out.sel{ border-width:2px; }
+.sf-x{ z-index:2; display:flex; align-items:center; gap:4px; font-size:11px; font-weight:650; color:var(--rose-ink); }
+.sf-x svg{ width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; }
+.sf-route{ z-index:2; align-self:start; display:flex; flex-direction:column; gap:8px; }
+.sflow.narrow .sf-route{ max-width:460px; margin-top:8px; }
+.sf-rh{ font-size:12px; color:var(--ink-2); } .sf-rh b{ color:var(--brand-ink); }
+.sf-steps{ display:flex; flex-direction:column; gap:18px; }
+.sf-step{ border-radius:12px; padding:7px 10px 8px; background:#fff; border:1.5px solid #CFCFF3; display:flex; flex-direction:column; gap:2px; animation:flin .35s ease backwards; animation-delay:var(--d,0ms); }
+.sf-sk{ display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:650; color:var(--ink-3); }
+.sf-sk svg{ width:12px; height:12px; flex:none; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.sf-step b{ font-size:12px; font-weight:620; line-height:1.28; }
+.sf-step > span{ font-size:11px; color:var(--ink-3); }
+.sf-step.k-pull{ background:var(--mint-t); border-color:#A9DBC9; } .sf-step.k-pull .sf-sk{ color:var(--mint-ink); }
+.sf-step.k-logic{ background:var(--lav-t); border-color:#C9C3F1; } .sf-step.k-logic .sf-sk{ color:var(--lav-ink); }
+.sf-step.k-move{ background:var(--sky-t); border-color:#B9D4F0; } .sf-step.k-move .sf-sk{ color:var(--sky-ink); }
+.sf-step.k-repair{ background:var(--peach-t); border-color:#F0CDB7; } .sf-step.k-repair .sf-sk{ color:var(--peach-ink); }
+.sf-step.k-filler{ background:var(--sage-t); border-color:#C9DFBC; } .sf-step.k-filler .sf-sk{ color:var(--sage-ink); }
+.sf-step.k-crew{ background:var(--butter-t); border-color:#EBD9A6; } .sf-step.k-crew .sf-sk{ color:var(--butter-ink); }
+.sf-step.k-offhire,.sf-step.k-wait{ background:var(--gray-t); border-color:#DADDE6; }
+.sf-step.k-blocked{ background:#FFF6F8; border-color:#F0C2CF; border-style:dashed; } .sf-step.k-blocked .sf-sk{ color:var(--rose-ink); }
+.sf-step.k-resume .sf-sk{ color:var(--brand-ink); }
+.sf-end{ border-radius:12px; padding:9px 11px; border:2px solid var(--line); display:flex; flex-direction:column; gap:2px; animation:flin .35s ease backwards; animation-delay:var(--d,0ms); }
+.sf-end b{ font-size:13px; } .sf-end span{ font-size:11px; line-height:1.35; }
+.sf-end.ok{ background:var(--mint-t); border-color:#7FC8B4; color:var(--mint-ink); }
+.sf-end.late{ background:var(--rose-t); border-color:#E7A3B6; color:var(--rose-ink); }
+.sf-end.exc{ background:var(--sky-t); border-color:#9CC3EA; color:var(--sky-ink); }
+.sf-end.blk{ background:#FFF6F8; border-color:#E7A3B6; border-style:dashed; color:var(--rose-ink); }
+.sf-more{ font-size:11px; color:var(--ink-3); }
+.sf-e{ fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.sf-e.dot{ stroke:#A3AABC; stroke-width:2; stroke-dasharray:.1 6; }
+.sf-e.dot.blk{ stroke:#E3A3B5; }
+.sf-e.dot.hse{ stroke:#E0A27E; }
+.sf-e.evl{ stroke:#D06A86; stroke-width:2.6; }
+.sf-e.bold{ stroke:var(--brand); stroke-width:3.6; }
+.sf-e.draw{ stroke-dasharray:var(--len) var(--len); stroke-dashoffset:var(--len); animation:sfdraw var(--du,.4s) ease-out forwards; animation-delay:var(--dl,0s); }
+.sf-run{ fill:none; stroke:rgba(255,255,255,.7); stroke-width:1.8; stroke-dasharray:16 460; stroke-linecap:round; opacity:0; animation:flcomet 2.2s linear infinite, sffade .3s ease forwards; animation-delay:0s, var(--dl,0s); }
+.sflow.still .sf-opt,.sflow.still .sf-step,.sflow.still .sf-end,.sflow.still .sf-ev,.sflow.still .sf-dec,.sflow.still .sf-out{ animation:none; }
+/* updated task flow */
+@media (max-width:820px){ .card-h{ flex-wrap:wrap; } .card-h .tools{ max-width:100%; margin-left:0; } }
+.card.expanded{ position:fixed; inset:16px; z-index:101; overflow:auto; box-shadow:var(--shadow-lg); }
+.card.expanded .flow-wrap{ overflow:visible; }
+.flow.compact{ column-gap:18px; padding-left:22px; }
+.flow.compact .fl-node{ padding:7px 9px; }
+.flow.compact .fl-t{ font-size:12px; }
+.fl-tag.pull{ background:var(--mint-t); color:var(--mint-ink); }
+.fl-tag.logic{ background:#E5E1FB; color:var(--lav-ink); }
+.fl-tag.move{ background:var(--sky-t); color:var(--sky-ink); }
+.fl-tag.crew{ background:var(--butter-t); color:var(--butter-ink); }
+.fl-tag.late{ background:var(--rose-t); color:var(--rose-ink); }
+.fl-tag.early{ background:var(--mint-t); color:var(--mint-ink); }
+.fl-tag.same{ background:var(--gray-t); color:var(--gray-ink); font-weight:550; }
+.fl-chip.note{ background:#F1EFFC; color:var(--lav-ink); white-space:normal; }
+.fl-evl{ display:flex; align-items:center; gap:4px; font-size:11px; font-weight:650; color:var(--rose-ink); line-height:1.3; }
+.fl-evl svg{ width:12px; height:12px; flex:none; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.fl-node.ev{ border:2px solid #D06A86; padding:7px 9px; box-shadow:0 0 0 4px rgba(208,106,134,.12); }
+.flow.compact .fl-node.ev{ padding:6px 8px; }
+.fl-node.mv{ background:var(--sky-t); border:1.5px dashed #8DB8E6; }
+.fl-gate.ev .dia{ background:var(--rose-t); border-color:#D06A86; }
+.fl-gate em{ font-style:normal; color:var(--rose-ink); }
+.fl-gate .fl-evl{ margin-top:2px; }
+.fl-ln{ font-style:normal; color:var(--brand-ink); font-weight:650; }
+.fl-lanebg.noted{ background:#F4F4FD; border-color:#DCDCF6; }
+.fl-end.late{ background:linear-gradient(90deg,#FBEAEF,#FFF6F8); border-color:#F0C2CF; }
+.fl-end.late b{ color:var(--rose-ink); } .fl-end.late .fl-endi{ color:var(--rose-ink); border-color:#F0C2CF; }
+.fl-e.move{ stroke:#5B5FC7; stroke-width:2.4; stroke-dasharray:7 4; }
+.fl-e.add,.fl-e.add.crit{ stroke:#5B5FC7; stroke-width:2.2; }
+.fl-legend i.ln.add{ border-top:2.2px solid #5B5FC7; }
+.fl-legend .fl-evl{ display:inline-flex; }
+.uf-sum{ display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; margin:-2px 0 14px; }
+.uf-k{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); align-self:center; margin-right:2px; }
+.uf-s{ position:relative; display:flex; flex-direction:column; gap:1px; padding:6px 10px 6px 31px; border-radius:10px; background:#fff; border:1px solid var(--line); font-size:11px; max-width:250px; animation:flin .35s ease backwards; }
+.uf-s i{ position:absolute; left:8px; top:7px; width:17px; height:17px; border-radius:50%; background:var(--brand); color:#fff; font-style:normal; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.uf-s b{ font-size:12px; font-weight:620; line-height:1.25; } .uf-s em{ font-style:normal; color:var(--ink-3); }
+.uf-s.k-pull{ background:var(--mint-t); border-color:#A9DBC9; } .uf-s.k-logic{ background:var(--lav-t); border-color:#C9C3F1; } .uf-s.k-move{ background:var(--sky-t); border-color:#B9D4F0; }
+.uf-s.k-repair{ background:var(--peach-t); border-color:#F0CDB7; } .uf-s.k-filler{ background:var(--sage-t); border-color:#C9DFBC; } .uf-s.k-crew{ background:var(--butter-t); border-color:#EBD9A6; }
+.uf-s.k-wait,.uf-s.k-offhire{ background:var(--gray-t); border-color:#DADDE6; } .uf-s.k-blocked{ background:#FFF6F8; border-color:#F0C2CF; border-style:dashed; }
+.uf-s.end{ padding-left:10px; border-width:2px; }
+.uf-s.end.ok{ background:var(--mint-t); border-color:#7FC8B4; color:var(--mint-ink); } .uf-s.end.late{ background:var(--rose-t); border-color:#E7A3B6; color:var(--rose-ink); }
+.uf-s.end.exc{ background:var(--sky-t); border-color:#9CC3EA; color:var(--sky-ink); } .uf-s.end.blk{ background:#FFF6F8; border-color:#E7A3B6; border-style:dashed; color:var(--rose-ink); }
+.uf-s.end em{ color:inherit; opacity:.85; }
+@keyframes flin{ from{ opacity:0; } to{ opacity:1; } }
+@keyframes flrun{ to{ stroke-dashoffset:-30; } }
+@keyframes flcomet{ from{ stroke-dashoffset:0; } to{ stroke-dashoffset:-532; } }
+@keyframes sfdraw{ to{ stroke-dashoffset:0; } }
+@keyframes sffade{ to{ opacity:.9; } }
+@keyframes sfpulse{ 0%{ box-shadow:0 0 0 0 rgba(208,106,134,.55); } 80%{ box-shadow:0 0 0 8px rgba(208,106,134,0); } 100%{ box-shadow:0 0 0 0 rgba(208,106,134,0); } }
+@media (prefers-reduced-motion: reduce){
+  .fl-run,.sf-run{ display:none; }
+  .fl-node,.fl-gate,.fl-end,.sf-opt,.sf-step,.sf-end,.sf-ev,.sf-dec,.sf-out{ animation:none; }
+  .sf-e.draw{ animation:none; stroke-dasharray:none; stroke-dashoffset:0; }
+  .sf-pulse{ animation:none; }
+}
+
 </style>
 </head>
 <body>
@@ -534,9 +717,9 @@ var CREW_DAY_RATE = 25000;
 var CAMPAIGN = { name:'Field A tie-back', desc:'Two subsea trees tied back to a host FPU through a new manifold: 12 km rigid flowline, umbilical, flying leads, spools.' };
 
 var GATES = {
-  hlvWindow:    { label:'HLV charter window opens', day:14, task:'LIFT', asset:'HLV' },
-  precomSpread: { label:'Pre-commissioning spread and chemicals ready at the shore base', day:15, task:'PRECOM', asset:'BASE' },
-  hostWindow:   { label:'Host commissioning window opens', day:26, task:'COMM', asset:'HOST' }
+  hlvWindow:    { label:'HLV charter window opens', short:'HLV window opens', day:14, task:'LIFT', asset:'HLV' },
+  precomSpread: { label:'Pre-commissioning spread and chemicals ready at the shore base', short:'Precom spread ready', day:15, task:'PRECOM', asset:'BASE' },
+  hostWindow:   { label:'Host commissioning window opens', short:'Host window opens', day:26, task:'COMM', asset:'HOST' }
 };
 
 var TASKS = [
@@ -586,7 +769,7 @@ var TASKS = [
     roles:[ R('CSV1','ROV support',{rov:1, dp:2}), R('HOST','Valve operations & acceptance') ],
     prereq:{ equipment:'ROV, torque tool', personnel:'ROV pilots', permits:'Host permit-to-work for each valve step', materials:'-', host:'Host acceptance of each step' },
     hold:['Host acceptance after each pressure monitoring'] },
-  { id:'COMM', short:'XT commissioning', name:'XT commissioning & start-up support', type:'commissioning', dur:3, preds:[P('HOOK')],
+  { id:'COMM', short:'XT commissioning', name:'XT commissioning & start-up support', type:'commissioning', dur:3, preds:[P('HOOK')], lane:'HOST',
     roles:[ R('FCB','Commissioning crew shuttle',{pob:10}), R('HOST','Commissioning window') ],
     prereq:{ equipment:'Commissioning spread', personnel:'Commissioning team with host operators', permits:'Host permit-to-work', materials:'MEG, nitrogen', host:'Host commissioning window (Day 26)' },
     hold:['Valve signature tests','Start-up readiness review'] },
@@ -1693,6 +1876,8 @@ function nowStamp(){ var d = new Date(); return d.getFullYear()+'-'+String(d.get
 function today(){ var d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 
 var ICON = {
+  ship:'<path d="M3 14.5h18l-2.6 5H5.6z"/><path d="M6 14.5V10h9l3 4.5"/><path d="M9 10V6h4v4"/>',
+  platform:'<path d="M4 10h16v3.5H4z"/><path d="M7 13.5V21M17 13.5V21M12 13.5V21"/><path d="M9 10V5.5h5V10"/>',
   overview:'<rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/>',
   campaign:'<path d="M4 6h9M8 12h12M6 18h8"/>',
   simulate:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',
@@ -1795,7 +1980,12 @@ function tipRows(rows){ return rows.map(function(r){ return '<div class="tr"><sp
 function toast(msg, ms){ var t = $('#toast'); t.innerHTML = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove('on'); }, ms || 3600); }
 function openDrawer(head, body){ $('#drawer .dh').innerHTML = head + '<button class="xbtn" data-act="close">'+ic('x')+'</button>'; $('#drawer .db').innerHTML = body; $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); $('#drawer .db').scrollTop = 0; }
 function openModal(title, body, foot, wide){ var m = $('#modal'); m.style.width = wide ? 'min(980px,95vw)' : ''; m.querySelector('.mh').innerHTML = '<div><h2>'+title+'</h2></div><button class="xbtn" data-act="close">'+ic('x')+'</button>'; m.querySelector('.mb').innerHTML = body; m.querySelector('.mf').innerHTML = foot || ''; m.classList.add('on'); $('#scrim').classList.add('on'); m.querySelector('.mb').scrollTop = 0; }
-function closeAll(){ $('#drawer').classList.remove('on'); $('#modal').classList.remove('on'); $('#scrim').classList.remove('on'); }
+function closeAll(){
+  var d = $('#drawer'), m = $('#modal'), x = $('.card.expanded');
+  if(x && (d.classList.contains('on') || m.classList.contains('on'))){ d.classList.remove('on'); m.classList.remove('on'); return; }
+  d.classList.remove('on'); m.classList.remove('on'); $('#scrim').classList.remove('on');
+  if(x){ x.classList.remove('expanded'); S.sim.ufx = false; if(typeof drawUpdFlow === 'function') drawUpdFlow(); }
+}
 
 // ---------------------------------------------------------------- animated Gantt (HTML, keyed updates)
 // model = { maxDay, lanes:[{id,label,sub,sys,rows}], bars:[{k,lane,row,from,to,cls,label,tip,ll,llOpen,llTask}], marks:[{k,day,cls,label}], bands:[{k,lane,from,to,label}] }
@@ -2099,6 +2289,7 @@ V.campaign = function(){
     + kpi('Peak spread', money(B.peakSpread)+'/d', 'Sum of on-hire day rates')
     + kpi('Assets & systems', S.assets.length, S.assets.filter(function(a){ return a.system; }).length+' connected systems')
     + '</div>';
+  h += campFlowCardHTML();
   h += '<div class="card mt16"><div class="card-h"><div><h3>Integrated schedule: all stakeholders</h3><div class="sub">Baseline plan from the schedule (P6 / MS Project import in the pilot). Purple numbers are lessons waiting at that activity.</div></div><div class="tools">'
     + '<label class="checks"><label><input type="checkbox" data-act="campll" '+(S.camp.showLL?'checked':'')+'> Lessons on bars</label></label></div></div>'
     + '<div id="camp-gantt"></div>'
@@ -2124,6 +2315,7 @@ V.campaign = function(){
 V.campaignAfter = function(){
   var B = C.baseline();
   drawGantt($('#camp-gantt'), ganttModel(B, { lanes:'all', showLL:S.camp.showLL, mode:'baseline', maxDay:34 }));
+  drawCampFlow();
 };
 function capsHTML(a){
   if(a.system) return '<span class="xs muted">'+esc(a.desc||'')+'</span>';
@@ -2240,6 +2432,8 @@ function runSim(keepSel){
   var el = $('#sim-results'); if(!el) return;
   el.innerHTML = simResultsHTML();
   drawSimGantt();
+  drawSimFlow();
+  drawUpdFlow();
   var list = $('#evlist'); if(list) list.innerHTML = evListHTML();
 }
 function optByKey(k){ var A = S.sim.A; for(var i=0;i<A.options.length;i++) if(A.options[i].key===k) return A.options[i]; return null; }
@@ -2279,6 +2473,8 @@ function simResultsHTML(){
   if(b.client > 0) notes.push('<div class="callout sky">'+ic('file')+'<div><b>Claimable from the client: '+money(b.client)+'.</b> Issue the standby notice within 24 h (lesson LL-0022: a late notice lost $480k). Evidence pack: coded ops-log hours (S.1 / S.2) with timestamps, drafted automatically. <a href="#" data-act="notice">Draft the notice</a></div></div>');
   if(ev.ownerNote) notes.push('<div class="callout lav">'+ic('about')+'<div>'+esc(ev.ownerNote)+'</div></div>');
   h += notes.join('');
+  h += simFlowCardHTML();
+  h += updFlowCardHTML();
   // lessons + cascade
   var reps = A.lessons.filter(function(m){ return m.repeat; });
   h += '<div class="grid g-7-5">';
@@ -2377,6 +2573,8 @@ function selectOption(k){
   $$('#opt-table tbody tr').forEach(function(tr){ tr.classList.toggle('sel', tr.getAttribute('data-k')===k); });
   $('#opt-detail').innerHTML = optionDetailHTML();
   drawSimGantt();
+  drawSimFlow();
+  drawUpdFlow();
 }
 // ---------------------------------------------------------------- decisions & brief
 function briefSnapshot(){
@@ -2449,6 +2647,430 @@ function noticeHTML(){
     + 'We give notice that the installation spread was on standby for reasons attributable to the client: <b>'+esc(ev.short || ev.title)+'</b>, from '+esc(dlab(A.t0))+' '+hhmm(A.t0)+'. '
     + 'Standby recorded: about '+hrs+' h, with knock-on to '+(I.cascade.length - 1)+' activities. Estimated standby value at contract rates: <b>'+money(I.buckets.client)+'</b>.<br><br>'
     + 'Evidence: coded daily operations log entries (codes S.1 / S.2) with timestamps, the twin schedule comparison (baseline vs. actual) and the recovery options reviewed. We reserve our rights under the contract, including an extension of time.<br><br>Regards,<br>Project manager</div></div>';
+}
+
+/* Flowcharts: campaign task flow (Campaign & fleet) and recovery flow (Simulate).
+   Nodes are HTML in a CSS grid; edges are SVG drawn from measured node boxes, so text wraps naturally
+   and the drawing follows the layout at any width. */
+var FLOW_OBS = {};
+var SVGNS = 'http://www.w3.org/2000/svg';
+function flSvg(tag, attrs, parent){ var e = document.createElementNS(SVGNS, tag); for(var k in attrs) if(attrs[k] !== undefined && attrs[k] !== null) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e; }
+function flBox(el, root){ var a = el.getBoundingClientRect(), b = root.getBoundingClientRect();
+  return { l:a.left - b.left, t:a.top - b.top, r:a.right - b.left, b:a.bottom - b.top, w:a.width, h:a.height, cx:(a.left + a.right)/2 - b.left, cy:(a.top + a.bottom)/2 - b.top }; }
+function flN(x){ return Math.round(x*10)/10; }
+// Orthogonal polyline with rounded corners.
+function flRound(pts, r){
+  var p = [];
+  pts.forEach(function(q){ var l = p[p.length-1]; if(!l || Math.abs(l[0]-q[0]) > 0.4 || Math.abs(l[1]-q[1]) > 0.4) p.push(q); });
+  if(p.length < 2) return '';
+  var s = [p[0]];
+  for(var i=1;i<p.length-1;i++){ var a = s[s.length-1], b = p[i], c = p[i+1];
+    if((Math.abs(a[0]-b[0]) < 0.4 && Math.abs(b[0]-c[0]) < 0.4) || (Math.abs(a[1]-b[1]) < 0.4 && Math.abs(b[1]-c[1]) < 0.4)) continue; s.push(b); }
+  s.push(p[p.length-1]);
+  var d = 'M'+flN(s[0][0])+' '+flN(s[0][1]);
+  for(var j=1;j<s.length;j++){
+    var cur = s[j];
+    if(j < s.length-1){
+      var prev = s[j-1], nxt = s[j+1], d1 = Math.hypot(cur[0]-prev[0], cur[1]-prev[1]), d2 = Math.hypot(nxt[0]-cur[0], nxt[1]-cur[1]), rr = Math.min(r, d1/2, d2/2);
+      d += ' L'+flN(cur[0] - (cur[0]-prev[0])/d1*rr)+' '+flN(cur[1] - (cur[1]-prev[1])/d1*rr)+' Q'+flN(cur[0])+' '+flN(cur[1])+' '+flN(cur[0] + (nxt[0]-cur[0])/d2*rr)+' '+flN(cur[1] + (nxt[1]-cur[1])/d2*rr);
+    } else d += ' L'+flN(cur[0])+' '+flN(cur[1]);
+  }
+  return d;
+}
+// Greedy track assignment so parallel segments in one channel do not sit on top of each other.
+function flTracks(segs){
+  segs.sort(function(x,y){ return x.a - y.a; });
+  var ends = [];
+  segs.forEach(function(s){ var t = 0; while(t < ends.length && ends[t] > s.a - 10) t++; s.track = t; ends[t] = s.b; });
+  segs.forEach(function(s){ s.n = ends.length; });
+}
+function flOff(s, gap){ return s ? (s.track - (s.n - 1)/2) * gap : 0; }
+function flGrid(el){
+  var cs = getComputedStyle(el), rg = parseFloat(cs.rowGap) || 0, cg = parseFloat(cs.columnGap) || 0;
+  var rows = cs.gridTemplateRows.split(' ').map(parseFloat), cols = cs.gridTemplateColumns.split(' ').map(parseFloat);
+  var y = parseFloat(cs.paddingTop) || 0, x = parseFloat(cs.paddingLeft) || 0, R = [], K = [];
+  rows.forEach(function(h){ R.push([y, y + h]); y += h + rg; });
+  cols.forEach(function(w){ K.push([x, x + w]); x += w + cg; });
+  return { rows:R, cols:K, rg:rg, cg:cg };
+}
+function flMarkers(svg, pre, list){
+  var defs = flSvg('defs', {}, svg);
+  list.forEach(function(m){
+    var mk = flSvg('marker', { id:pre+m[0], viewBox:'0 0 10 10', refX:'8.6', refY:'5', markerWidth:m[2] || 7, markerHeight:m[2] || 7, orient:'auto-start-reverse', markerUnits:'userSpaceOnUse' }, defs);
+    flSvg('path', { d:'M1 1.2 L9 5 L1 8.8 Z', fill:m[1] }, mk);
+  });
+}
+function flObserve(name, el, fn){
+  if(!window.ResizeObserver) return;
+  if(FLOW_OBS[name]) FLOW_OBS[name].disconnect();
+  var raf = 0, w = el.clientWidth;
+  FLOW_OBS[name] = new ResizeObserver(function(){
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function(){ if(!document.body.contains(el)){ FLOW_OBS[name].disconnect(); return; } if(Math.abs(el.clientWidth - w) < 1 && name==='sim') return; w = el.clientWidth; fn(); });
+  });
+  FLOW_OBS[name].observe(el);
+}
+function flLane(t){ return (t.lane && C.asset(t.lane)) ? t.lane : (t.roles[0] ? t.roles[0].asset : null); }
+function gateShort(G){ return G.short || trunc(G.label, 28); }
+
+// ================================================================ task flow (Campaign & fleet, and the updated flow on Simulate)
+// E: an evaluated plan (plan + res). ctx (optional): { base: baseline eval, notes, laneNotes, compact } for the updated flow.
+function taskFlowModel(E, ctx){
+  ctx = ctx || {};
+  var plan = E.plan, res = E.res, tm = C.taskMap(plan), B = ctx.base || null, tmB = B ? C.taskMap(B.plan) : null, lvl = {};
+  res.order.forEach(function(id){ var t = tm[id]; lvl[id] = t.preds.length ? 1 + Math.max.apply(null, t.preds.map(function(p){ return lvl[p.id]; })) : 0; });
+  var moved = {};   // a recovery option put a vessel on a task that it was not on: show where the work continues
+  if(tmB) plan.tasks.forEach(function(t){ var bt = tmB[t.id]; if(!bt) return;
+    t.roles.forEach(function(ro){ var A = C.asset(ro.asset); if(A && !A.system && !bt.roles.some(function(x){ return x.asset===ro.asset; })) moved[t.id] = ro; }); });
+  var nodes = {}, list = [], edges = [];
+  function add(n){ nodes[n.id] = n; list.push(n); }
+  function shift(from){ list.forEach(function(n){ if(n.row >= from) n.row++; }); }
+  plan.tasks.forEach(function(t){ var r = res.tasks[t.id];
+    add({ id:t.id, kind:'task', lane:flLane(t), row:lvl[t.id], start:r.ES, t:t, r:r, rb:B ? B.res.tasks[t.id] : null, note:(ctx.notes || {})[t.id] });
+    if(moved[t.id]){ var ro = moved[t.id];
+      add({ id:'mv-'+t.id, kind:'move', lane:ro.asset, row:lvl[t.id], start:r.ES + (ro.a || 0), t:t, r:r, from:r.ES + (ro.a || 0), to:r.EF, ro:ro });
+      edges.push({ from:t.id, to:'mv-'+t.id, kind:'move' }); }
+  });
+  // two activities in one lane and row (work pulled forward, a vessel taking over): the later one gets its own row
+  for(var guard = 0; guard < 60; guard++){
+    var seen = {}, hit = null;
+    list.slice().sort(function(a, b){ return a.row - b.row || a.start - b.start; }).forEach(function(n){ if(hit) return; var k = n.lane+'|'+n.row; if(seen[k]) hit = n; else seen[k] = 1; });
+    if(!hit) break;
+    var r0 = hit.row; shift(r0 + 1); hit.row = r0 + 1;
+  }
+  function gLane(G){ return C.asset(G.asset) ? G.asset : flLane(tm[G.task]); }
+  for(var g in plan.gates){ var G = plan.gates[g], tg = nodes[G.task]; if(!tg) continue;
+    var gl = gLane(G);
+    if(tg.row < 1 || list.some(function(n){ return n.lane===gl && n.row===tg.row - 1; })) shift(tg.row);
+    add({ id:'g-'+g, kind:'gate', lane:gl, row:tg.row - 1, start:G.day, G:G, gid:g, Gb:B ? B.plan.gates[g] : null, note:(ctx.notes || {})['g-'+g] });
+    var rt = res.tasks[G.task]; edges.push({ from:'g-'+g, to:G.task, kind:'gate', crit:rt.critical && rt.gated && Math.abs(rt.ES - G.day) < 1e-6 }); }
+  var laneSet = {}; list.forEach(function(n){ if(n.lane) laneSet[n.lane] = 1; });
+  var lanes = C.getAssets().map(function(a){ return a.id; }).filter(function(id){ return laneSet[id]; });
+  var cells = {}, maxRow = 0;
+  list.forEach(function(n){ var k = n.lane+'|'+n.row; (cells[k] = cells[k] || []).push(n); maxRow = Math.max(maxRow, n.row); });
+  plan.tasks.forEach(function(t){ t.preds.forEach(function(p){ var a = res.tasks[p.id], b = res.tasks[t.id];
+    edges.push({ from:moved[p.id] ? 'mv-'+p.id : p.id, to:t.id, kind:p.kind, crit:a.critical && b.critical && Math.abs(a.EF - b.ES) < 1e-6,
+      added:!!tmB && !!tmB[t.id] && !tmB[t.id].preds.some(function(x){ return x.id===p.id; }), pf:p.id }); }); });
+  // show an added link only when nothing else already forces that order (keeps the drawing readable)
+  if(tmB){
+    var succ = {}; plan.tasks.forEach(function(t){ succ[t.id] = []; }); plan.tasks.forEach(function(t){ t.preds.forEach(function(p){ succ[p.id].push(t.id); }); });
+    edges.forEach(function(e){ if(!e.added) return;
+      var vis = {}, st = succ[e.pf].filter(function(x){ return x!==e.to; });
+      while(st.length){ var n = st.pop(); if(n===e.to){ e.hide = true; break; } if(vis[n]) continue; vis[n] = 1; succ[n].forEach(function(x){ st.push(x); }); } });
+    edges = edges.filter(function(e){ return !e.hide; });
+  }
+  var hasSucc = {}; edges.forEach(function(e){ hasSucc[e.from] = 1; });
+  nodes.END = { id:'END', kind:'end', row:maxRow + 1 };
+  plan.tasks.forEach(function(t){ var id = moved[t.id] ? 'mv-'+t.id : t.id; if(!hasSucc[id]) edges.push({ from:id, to:'END', kind:'end', crit:res.tasks[t.id].critical }); });
+  var hand = edges.filter(function(e){ var a = nodes[e.from], b = nodes[e.to]; return a && b && a.kind!=='gate' && b.kind==='task' && a.lane !== b.lane; }).length;
+  return { E:E, B:B, lanes:lanes, rows:maxRow + 1, cells:cells, nodes:nodes, edges:edges, handoffs:hand, laneNotes:ctx.laneNotes || {}, compact:!!ctx.compact, finish:E.finish };
+}
+function campFlowCardHTML(){
+  var M = taskFlowModel(C.baseline()), nG = Object.keys(M.E.plan.gates).length;
+  return '<div class="card mt16"><div class="card-h"><div><h3>Task flow: how the work connects</h3><div class="sub">'+M.E.plan.tasks.length+' activities, '+nG+' readiness gates and '+M.handoffs+' hand-overs between vessels and systems. Each lane is one vessel or system; read top to bottom. Hover an activity to trace its links, click it for prerequisites, hold points and lessons.</div></div></div>'
+    + '<div class="flow-wrap"><div class="flow" id="camp-flow"></div></div>'
+    + '<div class="g-legend fl-legend"><span><i class="ln crit"></i>Critical path</span><span><i class="ln tech"></i>Technical link</span><span><i class="ln pref"></i>Planning link (can be broken in a recovery)</span><span><i class="ln res"></i>Same vessel, next job</span><span><i class="ln gate"></i>Readiness gate</span><span><span class="fl-chip hold">◆ 2</span>&nbsp;Hold points</span><span><span class="g-ll">3</span>&nbsp;Lessons waiting</span></div></div>';
+}
+function tfDelta(r, rb){ if(!rb) return ''; var d = r.EF - rb.EF; if(Math.abs(d) < 0.05) return ''; return '<span class="fl-tag '+(d > 0 ? 'late' : 'early')+'" data-tip="Finishes Day '+C.fmtDay(r.EF)+' (plan Day '+C.fmtDay(rb.EF)+')">'+(d > 0 ? '+' : '−')+fd(Math.abs(d))+' vs plan</span>'; }
+function tfNodeHTML(n, M){
+  if(n.kind==='gate'){
+    var G = n.G, A = C.asset(G.asset), win = A && A.window && n.gid==='hlvWindow', chg = n.Gb && Math.abs(n.Gb.day - G.day) > 1e-6, nt = n.note || {};
+    var tip = '<b>Readiness gate</b><br>'+esc(G.label)+'<br>Day '+C.fmtDay(G.day)+(chg ? ' (plan Day '+C.fmtDay(n.Gb.day)+')' : '')+(win ? ' · must start by Day '+A.window.latestStart+', next window Day '+A.window.next : '')+'<br>'+esc(taskById(G.task).short)+' cannot start before it.';
+    return '<div class="fl-gate'+(nt.ev ? ' ev' : '')+(chg ? ' chg' : '')+'" data-fid="'+n.id+'" data-tip="'+esc(tip)+'" style="--d:'+(n.row*70)+'ms"><i class="dia"></i><div><b>'+esc(gateShort(G))+'</b><span>Day '+C.fmtDay(G.day)+(chg ? ' <em>(plan '+C.fmtDay(n.Gb.day)+')</em>' : '')+(win && !chg ? ' · start by Day '+A.window.latestStart : '')+'</span>'+(nt.ev ? '<span class="fl-evl">'+ic('bolt')+esc(nt.ev)+'</span>' : '')+'</div></div>';
+  }
+  var t = n.t, r = n.r;
+  if(n.kind==='move'){
+    var tipm = '<b>'+esc(t.name)+'</b><br>Continues on '+esc(assetName(n.lane))+' from Day '+C.fmtDay(n.from)+' to Day '+C.fmtDay(n.to)+(n.ro.mob ? '<br>Mobilisation Day '+C.fmtDay(r.ES + n.ro.mob[0])+'–'+C.fmtDay(r.ES + n.ro.mob[1]) : '');
+    return '<button class="fl-node mv" data-act="task" data-id="'+t.id+'" data-fid="'+n.id+'" data-tip="'+esc(tipm)+'" style="--d:'+(n.row*70)+'ms"><div class="fl-r1"><span class="fl-t">'+esc(t.short)+' (continued)</span></div>'
+      + '<div class="fl-s"><span>Day '+C.fmtDay(n.from)+'–'+C.fmtDay(n.to)+'</span><span class="fl-tag move">moved here</span></div></button>';
+  }
+  var A2 = C.asset(n.lane), sys = A2 && A2.system, nt2 = n.note || {};
+  var ll = C.pointOfUse(t.id, S.lessons), open = ll.filter(function(m){ return m.open; }).length;
+  var sup = t.roles.filter(function(ro){ return ro.asset !== n.lane && !(M.nodes['mv-'+t.id] && M.nodes['mv-'+t.id].lane===ro.asset); });
+  var tip2 = '<b>'+esc(t.name)+'</b><br>Day '+C.fmtDay(r.ES)+'–'+C.fmtDay(r.EF)+' · '+fd(t.dur)+(r.critical ? ' · critical' : ' · '+fd(r.TF)+' float')+(n.rb && Math.abs(n.rb.EF - r.EF) > 0.05 ? '<br>Plan: Day '+C.fmtDay(n.rb.ES)+'–'+C.fmtDay(n.rb.EF) : '')
+    + '<br>'+t.roles.map(function(ro){ return esc(assetName(ro.asset))+': '+esc(ro.role); }).join('<br>')
+    + (t.hold.length ? '<br>Hold points: '+t.hold.map(esc).join('; ') : '') + (ll.length ? '<br>'+ll.length+' lesson'+(ll.length>1?'s':'')+' waiting'+(open ? ', '+open+' with open actions' : '') : '');
+  return '<button class="fl-node'+(r.critical ? ' c' : '')+(sys ? ' sys' : '')+(nt2.ev ? ' ev' : '')+'" data-act="task" data-id="'+t.id+'" data-fid="'+t.id+'" data-tip="'+esc(tip2)+'" style="--d:'+(n.row*70)+'ms">'
+    + '<div class="fl-r1"><span class="fl-t">'+esc(t.short)+'</span>'+(M.compact ? '' : '<span class="fl-bd">'+(t.hold.length ? '<span class="fl-chip hold">◆ '+t.hold.length+'</span>' : '')+(ll.length ? '<span class="g-ll'+(open ? ' open' : '')+'">'+ll.length+'</span>' : '')+'</span>')+'</div>'
+    + '<div class="fl-s"><span>'+fd(t.dur)+' · Day '+C.fmtDay(r.ES)+'–'+C.fmtDay(r.EF)+'</span>'+(n.rb ? tfDelta(r, n.rb) : (r.critical ? '<span class="fl-tag c">critical</span>' : '<span class="fl-tag">'+fd(r.TF)+' float</span>'))+'</div>'
+    + (nt2.ev ? '<div class="fl-evl">'+ic('bolt')+esc(nt2.ev)+'</div>' : '')
+    + ((nt2.tags || []).length || (nt2.chips || []).length ? '<div class="fl-m">'+(nt2.tags || []).map(function(x){ return '<span class="fl-tag '+x.c+'">'+esc(x.t)+'</span>'; }).join('')+(nt2.chips || []).map(function(x){ return '<span class="fl-chip note">'+esc(x)+'</span>'; }).join('')+'</div>' : '')
+    + (sup.length && !M.compact ? '<div class="fl-m">'+sup.map(function(ro){ return '<span class="fl-chip">+ '+esc(assetName(ro.asset))+'</span>'; }).join('')+'</div>' : '') + '</button>';
+}
+function drawTaskFlow(el, M, name){
+  var L = M.lanes.length, R = M.rows, h = '', minW = M.compact ? 128 : 150;
+  el._m = M; el.classList.toggle('compact', M.compact);
+  el.style.gridTemplateColumns = 'repeat('+L+', minmax('+minW+'px, 1fr))';
+  el.style.gridTemplateRows = 'auto repeat('+R+', auto) auto';
+  el.style.minWidth = (L*(minW + 18) + 40)+'px';
+  M.lanes.forEach(function(a, i){ var A = C.asset(a), ln = M.laneNotes[a];
+    h += '<div class="fl-lanebg'+(A.system ? ' sys' : '')+(ln ? ' noted' : '')+'" style="grid-column:'+(i+1)+';grid-row:1 / span '+(R+1)+'"></div>'
+      + '<div class="fl-lh" style="grid-column:'+(i+1)+';grid-row:1"><span class="fl-li">'+ic(!A.system ? 'ship' : A.type==='HOST' ? 'platform' : 'layers')+'</span><div><b>'+esc(A.name)+'</b><span>'+(ln ? '<em class="fl-ln">'+esc(ln)+'</em>' : esc(laneSub(a)))+'</span></div></div>'; });
+  Object.keys(M.cells).forEach(function(k){ var p = k.split('|'), li = M.lanes.indexOf(p[0]); if(li < 0) return;
+    h += '<div class="fl-cell" style="grid-column:'+(li+1)+';grid-row:'+(+p[1] + 2)+'">'+M.cells[k].map(function(n){ return tfNodeHTML(n, M); }).join('')+'</div>'; });
+  var fin = M.finish, fl = C.CONTRACT_HANDOVER - fin, plan = M.B ? M.B.finish : null;
+  h += '<div class="fl-end'+(fl < -1e-6 ? ' late' : '')+'" data-fid="END" style="grid-column:1 / -1;grid-row:'+(R+2)+'"><span class="fl-endi">'+ic(fl < -1e-6 ? 'alert' : 'check')+'</span><div><b>Handover · Day '+C.fmtDay(fin)+'</b><span>'+fdate(fin, true)+' 2027 · contract handover Day '+C.CONTRACT_HANDOVER+(plan !== null && Math.abs(plan - fin) > 0.05 ? ' · plan Day '+C.fmtDay(plan) : '')+'</span></div><span class="chip '+(fl >= -1e-6 ? 'mint' : 'rose')+'" style="margin-left:auto">'+(fl >= -1e-6 ? fd(fl)+' float to the contract date' : fd(-fl)+' after the contract date')+'</span></div>';
+  h += '<svg class="fl-svg" aria-hidden="true"></svg>';
+  el.innerHTML = h;
+  tfEdges(el, name);
+  if(!el._hov){ el._hov = 1;
+    el.addEventListener('mouseover', function(e){ var n = e.target.closest('.fl-node,.fl-gate'); if(n) tfHover(el, n.getAttribute('data-fid')); });
+    el.addEventListener('mouseout', function(e){ var n = e.target.closest('.fl-node,.fl-gate'); if(n && !(e.relatedTarget && n.contains(e.relatedTarget))) tfHover(el, null); }); }
+  flObserve(name, el, function(){ tfEdges(el, name); });
+}
+function drawCampFlow(){ var el = $('#camp-flow'); if(el) drawTaskFlow(el, taskFlowModel(C.baseline()), 'camp'); }
+function tfHover(el, id){
+  el.classList.toggle('hov', !!id);
+  var on = {}; if(id) on[id] = 1;
+  $$('.fl-e', el).forEach(function(p){ var hit = !!id && (p.getAttribute('data-a')===id || p.getAttribute('data-b')===id); p.classList.toggle('hl', hit); if(hit){ on[p.getAttribute('data-a')] = 1; on[p.getAttribute('data-b')] = 1; } });
+  $$('.fl-node,.fl-gate', el).forEach(function(n){ n.classList.toggle('hl', !!on[n.getAttribute('data-fid')]); });
+}
+function tfEdges(el, name){
+  var M = el._m, svg = el.querySelector('.fl-svg'); if(!M || !svg) return;
+  var pre = (name || 'tf')+'-', W = el.offsetWidth, H = el.offsetHeight;
+  svg.setAttribute('viewBox', '0 0 '+W+' '+H); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.innerHTML = '';
+  flMarkers(svg, pre, [['tech','#A3AABC'],['crit','#D06A86'],['pref','#8F86DB'],['res','#B7BDCC'],['gate','#8F86DB'],['add','#5B5FC7']]);
+  var T = flGrid(el), box = {};
+  $$('[data-fid]', el).forEach(function(n){ box[n.getAttribute('data-fid')] = flBox(n, el); });
+  var lanesIdx = {}; M.lanes.forEach(function(a, i){ lanesIdx[a] = i; });
+  function gRow(n){ return n.kind==='end' ? M.rows + 1 : n.row + 1; }
+  function chY(gi){ return (T.rows[gi][1] + T.rows[gi + 1][0]) / 2; }
+  function corX(j){ var K = T.cols; if(j <= 0) return K[0][0] - T.cg/2; if(j >= K.length) return K[K.length-1][1] + T.cg/2; return (K[j-1][1] + K[j][0]) / 2; }
+  var E = M.edges.filter(function(e){ return box[e.from] && box[e.to]; });
+  E.forEach(function(e){ var S1 = M.nodes[e.from], T1 = M.nodes[e.to];
+    e.ga = gRow(S1); e.gb = gRow(T1) - 1; e.ls = lanesIdx[S1.lane]; e.lt = T1.kind==='end' ? e.ls : lanesIdx[T1.lane];
+    e.side = T1.kind!=='end' && e.ls===e.lt && e.gb > e.ga; e.mv = e.kind==='move' && S1.row===T1.row; });
+  var outs = {}, ins = {};
+  E.forEach(function(e){ if(e.side || e.mv) return; (outs[e.from] = outs[e.from] || []).push(e); (ins[e.to] = ins[e.to] || []).push(e); });
+  Object.keys(outs).forEach(function(k){ var b = box[k], list = outs[k].sort(function(p, q){ return box[p.to].cx - box[q.to].cx || box[p.to].cy - box[q.to].cy; }), n = list.length, span = Math.min(b.w - 30, (n - 1) * 18);
+    list.forEach(function(e, i){ e.x0 = b.cx - span/2 + (n > 1 ? i*span/(n - 1) : 0); e.y0 = b.b; }); });
+  Object.keys(ins).forEach(function(k){ var b = box[k], list = ins[k].sort(function(p, q){ return box[p.from].cx - box[q.from].cx; }), n = list.length, span = Math.min(b.w - 30, (n - 1) * 18);
+    list.forEach(function(e, i){ e.x1 = k==='END' ? e.x0 : b.cx - span/2 + (n > 1 ? i*span/(n - 1) : 0); e.y1 = b.t; }); });
+  var chans = {}, cors = {};
+  function addH(ch, a, b){ var sg = { a:Math.min(a, b), b:Math.max(a, b) }; (chans[ch] = chans[ch] || []).push(sg); return sg; }
+  function addV(j, a, b){ var sg = { a:Math.min(a, b), b:Math.max(a, b) }; (cors[j] = cors[j] || []).push(sg); return sg; }
+  E.forEach(function(e){
+    var bs = box[e.from], bt = box[e.to];
+    if(e.mv){ if(Math.abs(e.ls - e.lt) > 1){ e.h1 = addH(e.ga - 1, bs.cx, bt.cx); } return; }
+    if(e.side){ e.cj = e.ls; e.xc = corX(e.ls); e.y0 = bs.cy; e.y1 = bt.cy; e.v = addV(e.cj, bs.cy, bt.cy); return; }
+    if(e.gb <= e.ga){ e.h1 = addH(e.ga, e.x0, e.x1); return; }
+    var j = e.lt > e.ls ? e.lt : (e.lt < e.ls ? e.lt + 1 : e.ls + 1);
+    e.xc = corX(j); e.cj = j;
+    e.h1 = addH(e.ga, e.x0, e.xc); e.v = addV(j, chY(e.ga), chY(e.gb)); e.h2 = addH(e.gb, e.xc, e.x1);
+  });
+  Object.keys(chans).forEach(function(k){ flTracks(chans[k]); });
+  Object.keys(cors).forEach(function(k){ flTracks(cors[k]); });
+  var runD = [];
+  E.forEach(function(e){
+    var pts, bs = box[e.from], bt = box[e.to];
+    if(e.mv){
+      if(Math.abs(e.ls - e.lt) <= 1){ var xm = e.lt > e.ls ? (bs.r + bt.l)/2 : (bs.l + bt.r)/2; pts = e.lt > e.ls ? [[bs.r, bs.cy], [xm, bs.cy], [xm, bt.cy], [bt.l, bt.cy]] : [[bs.l, bs.cy], [xm, bs.cy], [xm, bt.cy], [bt.r, bt.cy]]; }
+      else { var yu = chY(e.ga - 1) + flOff(e.h1, 6); pts = [[bs.cx, bs.t], [bs.cx, yu], [bt.cx, yu], [bt.cx, bt.t]]; }
+    } else if(e.side){ var xs = e.xc + flOff(e.v, 6); pts = [[bs.l, e.y0], [xs, e.y0], [xs, e.y1], [bt.l, e.y1]]; }
+    else {
+      var ya = chY(e.ga) + flOff(e.h1, 6);
+      if(e.gb <= e.ga) pts = [[e.x0, e.y0], [e.x0, ya], [e.x1, ya], [e.x1, e.y1]];
+      else { var xc = e.xc + flOff(e.v, 6), yb = chY(e.gb) + flOff(e.h2, 6); pts = [[e.x0, e.y0], [e.x0, ya], [xc, ya], [xc, yb], [e.x1, yb], [e.x1, e.y1]]; }
+    }
+    var kind = { technical:'tech', preferential:'pref', resource:'res', gate:'gate', end:'tech', move:'move' }[e.kind] || 'tech';
+    var mk = (e.added || kind==='move') ? 'add' : e.crit ? 'crit' : kind;
+    var d = flRound(pts, 9);
+    flSvg('path', { d:d, 'class':'fl-e '+kind+(e.crit ? ' crit' : '')+(e.added ? ' add' : ''), 'data-a':e.from, 'data-b':e.to, 'marker-end':'url(#'+pre+mk+')' }, svg);
+    if(e.crit && !e.added) runD.push(d);
+  });
+  if(runD.length) flSvg('path', { d:runD.join(' '), 'class':'fl-run' }, svg);
+}
+
+// ================================================================ updated task flow (Simulate): the plan with the selected option
+function updFlowCardHTML(){
+  var m = S.sim.ufmode || 'option';
+  return '<div class="card" id="uflow-card"><div class="card-h"><div><h3>Updated task flow</h3><div class="sub" id="uf-sub"></div></div>'
+    + '<div class="tools"><button class="btn sm" data-act="ufexpand" id="uf-x">'+ic('eye')+'Full screen</button><div class="seg" id="uf-mode"><button data-act="ufmode" data-v="option" class="'+(m==='option' ? 'on' : '')+'">Selected option</button><button data-act="ufmode" data-v="impact" class="'+(m==='impact' ? 'on' : '')+'">If we wait</button><button data-act="ufmode" data-v="baseline" class="'+(m==='baseline' ? 'on' : '')+'">Baseline</button></div></div></div>'
+    + '<div class="uf-sum" id="uf-sum"></div>'
+    + '<div class="flow-wrap"><div class="flow" id="upd-flow"></div></div>'
+    + '<div class="g-legend fl-legend"><span><i class="ln crit"></i>Critical path</span><span><i class="ln add"></i>New link with this option</span><span><i class="ln pref"></i>Planning link</span><span><i class="ln res"></i>Same vessel, next job</span><span><span class="fl-tag pull">pulled forward</span></span><span><span class="fl-tag logic">in parallel</span></span><span><span class="fl-tag move">moved</span></span><span><span class="fl-tag late">+1 d vs plan</span></span><span><span class="fl-evl">'+ic('bolt')+'event</span></span></div></div>';
+}
+function updNotes(A, o, mode){
+  var ev = S.sim.ev, B = A.baseline, notes = {}, lanes = {};
+  function N(id){ return (notes[id] = notes[id] || { tags:[], chips:[] }); }
+  if(ev.gate) N('g-'+ev.gate.id).ev = mode==='baseline' ? 'risk: may move' : 'moved by the event to Day '+C.fmtDay(ev.gate.day);
+  else N(ev.task).ev = (mode==='baseline' ? 'risk: ' : 'stops ')+'Day '+C.fmtDay(A.t0)+' · '+fd(ev.delayDays)+' repair';
+  if(mode!=='option' || !o) return { notes:notes, lanes:lanes };
+  var E = o.eval, tmB = C.taskMap(B.plan), tmE = C.taskMap(E.plan), tmI = C.taskMap(A.impact.eval.plan), m;
+  o.parts.forEach(function(k){
+    if(k==='SPARE' && ev.spare && !ev.gate) N(ev.task).ev = 'stops Day '+C.fmtDay(A.t0)+' · repair '+fd(ev.spare.days)+' with the spare (was '+fd(ev.delayDays)+')';
+    else if((m = /^PULL_(.+)$/.exec(k))) N(m[1]).tags.push({ c:'pull', t:'pulled forward' });
+    else if((m = /^PREF_([^_]+)_(.+)$/.exec(k))) N(m[2]).tags.push({ c:'logic', t:'in parallel' });
+    else if((m = /^(SWAP|CALLOFF)_(.+)$/.exec(k))){ N(ev.task).tags.push({ c:'move', t:'continues on '+assetName(m[2]) }); lanes[m[2]] = m[1]==='CALLOFF' ? 'called off' : 'takes over'; if(ev.asset !== m[2]) lanes[ev.asset] = 'released Day '+C.fmtDay(A.t0); }
+    else if((m = /^FILLER_(.+)$/.exec(k))){ var F = C.FILLERS.filter(function(x){ return x.id===m[1]; })[0];
+      if(F && tmE[F.target] && tmI[F.target]) N(F.target).chips.push(fd(Math.max(0, tmI[F.target].dur - tmE[F.target].dur))+' done early as filler'); }
+    else if(k==='CREW') N(ev.task).tags.push({ c:'crew', t:'second crew' });
+    else if(k==='EXPEDITE' && ev.gate && ev.expedite) N('g-'+ev.gate.id).ev = 'event moved it to Day '+C.fmtDay(ev.gate.day)+'; expedited to Day '+C.fmtDay(ev.expedite.day);
+    else if(k==='OFFHIRE') Object.keys(E.credits || {}).forEach(function(v){ var c = E.credits[v]; lanes[v] = 'off hire Day '+C.fmtDay(c.from)+'–'+C.fmtDay(c.to); });
+  });
+  B.plan.tasks.forEach(function(bt){ var et = tmE[bt.id]; if(!et) return;
+    bt.preds.forEach(function(p){ if(!et.preds.some(function(x){ return x.id===p.id; })) N(bt.id).chips.push('no wait for '+tmB[p.id].short.toLowerCase()); }); });
+  return { notes:notes, lanes:lanes };
+}
+function drawUpdFlow(){
+  var el = $('#upd-flow'); if(!el || !S.sim.A) return;
+  var A = S.sim.A, mode = S.sim.ufmode || 'option', o = optByKey(S.sim.sel), I = A.impact;
+  if(mode==='option' && !o) mode = 'impact';
+  var E = mode==='baseline' ? A.baseline : mode==='impact' ? I.eval : o.eval, nn = updNotes(A, o, mode);
+  var M = taskFlowModel(E, { base: mode==='baseline' ? null : A.baseline, notes:nn.notes, laneNotes:nn.lanes, compact:!S.sim.ufx });
+  var xb = $('#uf-x'); if(xb) xb.innerHTML = S.sim.ufx ? ic('x')+'Close' : ic('eye')+'Full screen';
+  $$('#uf-mode button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===mode); });
+  var sub = $('#uf-sub'), sum = $('#uf-sum'), late = E.finish - C.CONTRACT_HANDOVER;
+  if(sub) sub.innerHTML = mode==='option' ? 'The campaign flow rebuilt with <b>'+esc(o.name)+'</b>: what moves, what now runs in parallel, which links change. Pick another option above or in the table and it redraws.'
+    : mode==='impact' ? 'The same logic as the baseline, with every activity pushed by the event. Handover Day '+C.fmtDay(E.finish)+(late > EPS ? ', '+fd(late)+' after the contract date' : '')+'.'
+    : 'The baseline flow from Campaign & fleet. The red marker shows where this event hits.';
+  if(sum){
+    if(mode==='option'){
+      var RS = routeSteps(A, o);
+      sum.innerHTML = '<span class="uf-k">What changes</span>'+RS.steps.map(function(s, i){ return '<span class="uf-s k-'+s.kind+'"><i>'+(i+1)+'</i><b>'+esc(s.title)+'</b><em>'+esc(s.sub)+'</em></span>'; }).join('')
+        + '<span class="uf-s end '+(o.blocked ? 'blk' : otdClass(o))+'"><b>'+(o.blocked ? 'Not allowed' : 'Handover Day '+C.fmtDay(o.finish))+'</b><em>'+(o.blocked ? esc(blockedWhy(o)) : otdText(o)+(o.key!=='WAIT' && Math.abs(I.finish - o.finish) > 0.05 ? ' · '+fd(I.finish - o.finish)+' earlier than waiting' : ''))+'</em></span>';
+    } else sum.innerHTML = '';
+    sum.style.display = mode==='option' ? '' : 'none';
+  }
+  drawTaskFlow(el, M, 'upd');
+}
+
+// ================================================================ recovery flow (Simulate)
+function simFlowCardHTML(){
+  return '<div class="card" id="sflow-card"><div class="card-h"><div><h3>Recovery flow: from the failure to handover</h3><div class="sub">Dotted lines are the recovery options the twin found and costed. The bold line is the selected option and how it reroutes the work. Click any option to switch.</div></div></div>'
+    + '<div class="sflow-wrap"><div class="sflow" id="sflow"></div></div>'
+    + '<div class="g-legend fl-legend"><span><i class="ln sel"></i>Selected option</span><span><i class="ln dot"></i>Other options</span><span><i class="ln hse"></i>HSE gate: needs an approved plan first</span><span><i class="ln blk"></i>Blocked by a guardrail</span><span><i class="sw k-pull"></i>Pulled forward</span><span><i class="sw k-logic"></i>Run in parallel</span><span><i class="sw k-move"></i>Moved to another vessel</span><span><i class="sw k-repair"></i>Faster repair</span><span><i class="sw k-filler"></i>Filler work</span></div></div>';
+}
+function flowRows(A){
+  var ranked = C.rank(A.options, S.sim.sort), idx = {}, pick = [], seen = {};
+  ranked.forEach(function(o, i){ idx[o.key] = i; });
+  function add(o){ if(o && !seen[o.key]){ seen[o.key] = 1; pick.push(o); } }
+  [S.sim.sel, A.recommended, A.fastest, A.cheapest, 'WAIT'].forEach(function(k){ add(optByKey(k)); });
+  ranked.forEach(function(o){ if(!o.blocked && !o.hseGate && pick.length < 5) add(o); });
+  if(!pick.some(function(o){ return o.hseGate; })) add(ranked.filter(function(o){ return o.hseGate && !o.blocked; })[0]);
+  if(!pick.some(function(o){ return o.blocked; })) add(ranked.filter(function(o){ return o.blocked; })[0]);
+  var wait = pick.filter(function(o){ return o.key==='WAIT'; }), rest = pick.filter(function(o){ return o.key!=='WAIT'; });
+  rest.sort(function(a, b){ return idx[a.key] - idx[b.key]; });
+  return rest.filter(function(o){ return !o.blocked; }).concat(wait, rest.filter(function(o){ return o.blocked; }));
+}
+function blockedWhy(o){ var q = o.reqs.filter(function(r){ return r.status==='blocked'; })[0]; return q ? q.label : 'Blocked'; }
+function routeSteps(A, o){
+  var ev = S.sim.ev, B = A.baseline, I = A.impact.eval, E = o.eval;
+  var tmB = C.taskMap(B.plan), tmE = C.taskMap(E.plan), tmI = C.taskMap(I.plan), T = tmB[ev.task];
+  var eT = E.res.tasks, iT = I.res.tasks, out = [], shown = {}, moved = false, m;
+  function dr(a, b){ return 'Day '+C.fmtDay(a)+'–'+C.fmtDay(b); }
+  var G = ev.gate ? B.plan.gates[ev.gate.id] : null;
+  o.parts.forEach(function(k){
+    if(k==='WAIT'){
+      out.push(G ? { kind:'wait', day:A.t0, asset:ev.asset, title:'Stand by for the readiness gate', sub:gateShort(G)+' Day '+C.fmtDay(ev.gate.day)+' (was '+C.fmtDay(G.day)+')' }
+                 : { kind:'wait', day:A.t0, asset:ev.asset, title:'Stand by during the repair', sub:fd(ev.delayDays)+' · the spreads wait' });
+    } else if(k==='SPARE' && ev.spare){
+      out.push({ kind:'repair', day:A.t0, asset:C.asset('FCB') ? 'FCB' : ev.asset, title:'Spare '+ev.spare.short+' by crew boat', sub:'repair '+fd(ev.delayDays)+' → '+fd(ev.spare.days) });
+    } else if((m = /^PULL_(.+)$/.exec(k)) && eT[m[1]]){
+      out.push({ kind:'pull', day:eT[m[1]].ES, asset:ev.asset, title:tmB[m[1]].short+' during the repair', sub:dr(eT[m[1]].ES, eT[m[1]].EF) }); shown[m[1]] = 1;
+    } else if((m = /^PREF_([^_]+)_(.+)$/.exec(k)) && eT[m[2]]){
+      out.push({ kind:'logic', day:eT[m[2]].ES, asset:flLane(tmB[m[2]]), title:tmB[m[2]].short+' in parallel', sub:dr(eT[m[2]].ES, eT[m[2]].EF)+' · no wait for '+tmB[m[1]].short.toLowerCase() }); shown[m[2]] = 1;
+    } else if((m = /^(SWAP|CALLOFF)_(.+)$/.exec(k))){
+      var v = m[2], ro = tmE[ev.task].roles.filter(function(x){ return x.asset===v; })[0] || {}, from = eT[ev.task].ES + (ro.a || 0);
+      out.push({ kind:'move', day:from, asset:v, title:T.short+' moves to '+assetName(v), sub:(m[1]==='CALLOFF' ? 'Called off · ' : '')+dr(from, eT[ev.task].EF) });
+      moved = true; shown[ev.task] = 1;
+    } else if((m = /^FILLER_(.+)$/.exec(k))){
+      var F = C.FILLERS.filter(function(x){ return x.id===m[1]; })[0];
+      if(F && tmE[F.target] && tmI[F.target]) out.push({ kind:'filler', day:A.t0 + 0.01, asset:F.asset, title:'Filler: '+F.short, sub:fd(Math.max(0, tmI[F.target].dur - tmE[F.target].dur))+' of '+tmB[F.target].short.toLowerCase()+' done early' });
+    } else if(k==='CREW' && tmE[ev.task]){
+      out.push({ kind:'crew', day:eT[ev.task].ES, asset:flLane(tmB[ev.task]), title:'Second crew', sub:T.short.toLowerCase()+' '+fd(Math.max(0, tmI[ev.task].dur - tmE[ev.task].dur))+' shorter' });
+    } else if(k==='EXPEDITE' && ev.expedite && G){
+      out.push({ kind:'repair', day:A.t0, asset:ev.asset, title:ev.expedite.short, sub:'ready Day '+C.fmtDay(ev.expedite.day)+' (was '+C.fmtDay(ev.gate.day)+')' });
+    } else if(k==='NEGOTIATE'){
+      out.push({ kind:'blocked', day:A.t0, asset:ev.asset, title:'Earlier host window', sub:'not confirmed by the host' });
+    } else if(k==='OFFHIRE'){
+      Object.keys(E.credits || {}).forEach(function(v2){ var c = E.credits[v2]; out.push({ kind:'offhire', day:c.from, asset:v2, title:'Off-hire '+assetName(v2), sub:fd(c.days)+' off hire · saves '+money(c.saving) }); });
+    } else if(k==='REDUNDANT'){
+      out.push({ kind:'blocked', day:A.t0, asset:ev.asset, title:o.name, sub:blockedWhy(o) });
+    }
+  });
+  if(!moved && !shown[ev.task] && eT[ev.task]){
+    if(G) out.push({ kind:'resume', day:eT[ev.task].ES, asset:flLane(tmB[ev.task]), title:T.short+' starts', sub:dr(eT[ev.task].ES, eT[ev.task].EF) });
+    else { var rs = Math.max(A.t0, eT[ev.task].EF - Math.max(0.25, T.dur - (ev.onset || 0)));
+      out.push({ kind:'resume', day:rs, asset:ev.asset, title:T.short+' resumes', sub:dr(rs, eT[ev.task].EF) }); }
+    shown[ev.task] = 1;
+  }
+  out.sort(function(a, b){ return a.day - b.day; });
+  var ref = o.key==='WAIT' ? B.res.tasks : iT, more = 0, net = 0;
+  Object.keys(eT).forEach(function(id){ if(shown[id] || !ref[id]) return; var d = eT[id].ES - ref[id].ES; if(Math.abs(d) > 0.05){ more++; net += d; } });
+  return { steps:out.slice(0, 4), more:more, earlier:net < 0, vsWait:o.key!=='WAIT' };
+}
+function otdClass(o){ return o.otd.late > EPS ? (o.otd.status.indexOf('excusable') >= 0 ? 'exc' : 'late') : 'ok'; }
+function otdText(o){ return o.otd.late > EPS ? fd(o.otd.late)+' late'+(o.otd.status.indexOf('excusable') >= 0 ? ', excusable' : '') : 'on time'; }
+var STEP_IC = { pull:'up', logic:'layers', move:'arrow', repair:'bolt', filler:'plus', crew:'user', offhire:'down', wait:'clock', resume:'check', blocked:'x' };
+function drawSimFlow(still){
+  var el = $('#sflow'); if(!el || !S.sim.A) return;
+  var A = S.sim.A, ev = S.sim.ev, sel = optByKey(S.sim.sel) || A.options[0], I = A.impact;
+  var wide = (el.parentNode.clientWidth || 800) >= 760, rows = flowRows(A), n = rows.length, T = taskById(ev.task);
+  el.className = 'sflow '+(wide ? 'wide' : 'narrow')+(still ? ' still' : '');
+  var tint = OWNER_TINT[ev.owner.def] || OWNER_TINT.company, reps = A.lessons.filter(function(x){ return x.repeat; }).length;
+  var G = ev.gate ? A.baseline.plan.gates[ev.gate.id] : null, h = '';
+  h += '<div class="sf-head" style="grid-column:1;grid-row:1">Failure</div><div class="sf-head c" style="grid-column:2;grid-row:1">Decide</div><div class="sf-head" style="grid-column:3;grid-row:1">Recovery options</div><div class="sf-head" style="grid-column:4;grid-row:1">Handover</div>'
+    + (wide ? '<div class="sf-head" style="grid-column:5;grid-row:1">Rerouted plan</div>' : '');
+  h += '<div class="sf-ev" data-fid="ev" style="grid-column:1;grid-row:2 / span '+n+'"><div class="sf-eh"><span class="sf-id" style="background:'+tint[0]+';color:'+tint[1]+'">'+(ev.id==='CUSTOM' ? '★' : esc(ev.id))+'</span>'+codeChip(ev.code)+'<i class="sf-pulse"></i></div>'
+    + '<b>'+esc(ev.id==='CUSTOM' ? ev.title.replace(/^Custom: /, '').replace(/^./, function(c){ return c.toUpperCase(); }) : (ev.short || ev.title))+'</b><span>'+(G ? esc(gateShort(G))+' moves to Day '+C.fmtDay(ev.gate.day) : esc(T.short)+' · Day '+C.fmtDay(A.t0)+' · '+fd(ev.delayDays)+' stop')+'</span>'
+    + '<div class="sf-ei">'+(I.daysLost > EPS ? 'If we wait: +'+fd(I.daysLost)+', handover Day '+C.fmtDay(I.finish) : 'If we wait: no delay to handover')+'</div>'
+    + (A.lessons.length ? '<div class="sf-el">'+A.lessons.length+' lesson'+(A.lessons.length>1?'s':'')+' pushed'+(reps ? ' · <b>'+reps+' repeat</b>' : '')+'</div>' : '') + '</div>';
+  h += '<div class="sf-dec" style="grid-column:2;grid-row:2 / span '+n+'"><div class="dia" data-fid="dec">'+ic('target')+'</div><span>'+A.options.length+' options<br>ranked in '+(A.ms < 1000 ? Math.max(1, Math.round(A.ms))+' ms' : (A.ms/1000).toFixed(1)+' s')+'</span></div>';
+  rows.forEach(function(o, i){
+    var r = i + 2, isSel = o.key===sel.key, k = esc(o.key);
+    var meta = o.blocked ? '<span class="sf-why">'+esc(trunc(blockedWhy(o), 54))+'</span>' : (o.key!=='WAIT' && o.daysSaved > EPS ? '<span class="sf-sv">'+fd(o.daysSaved)+' saved</span>' : '')+'<span>'+money(o.total)+'</span><b class="sf-sc" data-tip="Balanced score (Safety, Quality, Delivery, Cost, People)">'+o.score+'</b>';
+    h += '<button class="sf-opt'+(isSel ? ' sel' : '')+(o.blocked ? ' blk' : '')+'" data-act="opt" data-k="'+k+'" data-fid="o:'+k+'" style="grid-column:3;grid-row:'+r+';--d:'+(140 + i*60)+'ms"><div class="sf-ot">'+esc(o.name)+'</div><div class="sf-om">'+optBadges(o)+meta+'</div></button>';
+    if(o.blocked) h += '<div class="sf-x" data-fid="x:'+k+'" style="grid-column:4;grid-row:'+r+'">'+ic('x')+'Not allowed</div>';
+    else if(!(wide && isSel)) h += '<div class="sf-out '+otdClass(o)+(isSel ? ' sel' : '')+'" data-fid="out:'+k+'" style="grid-column:4;grid-row:'+r+'"><b>Day '+C.fmtDay(o.finish)+'</b><span>'+otdText(o)+'</span></div>';
+  });
+  var RS = routeSteps(A, sel), endCls = sel.blocked ? 'blk' : otdClass(sel);
+  h += '<div class="sf-route" style="'+(wide ? 'grid-column:5;grid-row:2 / span '+n : 'grid-column:1 / -1;grid-row:'+(n + 2))+'">'
+    + (wide ? '' : '<div class="sf-rh">Rerouted plan: <b>'+esc(sel.name)+'</b></div>')
+    + '<div class="sf-steps">' + RS.steps.map(function(s, i){
+        return '<div class="sf-step k-'+s.kind+'" data-fid="s:'+i+'" style="--d:'+(420 + i*140)+'ms"><div class="sf-sk">'+ic(STEP_IC[s.kind] || 'check')+'<span>'+esc(assetName(s.asset))+'</span></div><b>'+esc(s.title)+'</b><span>'+esc(s.sub)+'</span></div>'; }).join('')
+    + '<div class="sf-end '+endCls+'" data-fid="end" style="--d:'+(420 + RS.steps.length*140)+'ms">'+(sel.blocked ? '<b>Not allowed</b><span>'+esc(blockedWhy(sel))+'</span>'
+        : '<b>Handover Day '+C.fmtDay(sel.finish)+'</b><span>'+otdText(sel)+' · our cost '+money(sel.total)+(sel.key!=='WAIT' && sel.netSaving > 0.5 ? ' · saves '+money(sel.netSaving)+' vs waiting' : '')+'</span>')+'</div></div>'
+    + (RS.more ? '<div class="sf-more">'+RS.more+' other activit'+(RS.more>1?'ies':'y')+' '+(RS.vsWait ? (RS.earlier ? 'start earlier than if we wait' : 'move vs waiting') : 'move later')+'</div>' : '') + '</div>';
+  h += '<svg class="sf-svg" aria-hidden="true"></svg>';
+  el.innerHTML = h;
+  simFlowEdges(el, rows, sel, wide, still);
+  flObserve('sim', el.parentNode, function(){ drawSimFlow(true); });
+}
+function simFlowEdges(el, rows, sel, wide, still){
+  var svg = el.querySelector('.sf-svg'), W = el.offsetWidth, H = el.offsetHeight;
+  svg.setAttribute('viewBox', '0 0 '+W+' '+H); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.innerHTML = '';
+  flMarkers(svg, 'sf-', [['ev','#D06A86', 9],['bold','#5B5FC7', 10],['dot','#A3AABC', 7],['blk','#E3A3B5', 7],['hse','#E0A27E', 7]]);
+  var box = {}; $$('[data-fid]', el).forEach(function(n){ box[n.getAttribute('data-fid')] = flBox(n, el); });
+  var ev = box.ev, dec = box.dec, bold = [];
+  function path(d, cls, mk){ return flSvg('path', { d:d, 'class':'sf-e '+cls, 'marker-end':mk ? 'url(#sf-'+mk+')' : null }, svg); }
+  if(ev && dec) bold.push({ d:'M'+flN(ev.r)+' '+flN(ev.cy)+' L'+flN(dec.l - 2)+' '+flN(dec.cy), cls:'evl', mk:'ev' });
+  rows.forEach(function(o){
+    var ob = box['o:'+o.key]; if(!ob || !dec) return;
+    var isSel = o.key===sel.key, x0 = dec.r + 2, y0 = dec.cy, x1 = ob.l - 1, y1 = ob.cy, k = (x1 - x0) * 0.55;
+    var d = 'M'+flN(x0)+' '+flN(y0)+' C'+flN(x0 + k)+' '+flN(y0)+' '+flN(x1 - k)+' '+flN(y1)+' '+flN(x1)+' '+flN(y1);
+    var dc = o.blocked ? ' blk' : o.hseGate ? ' hse' : '', dm = o.blocked ? 'blk' : o.hseGate ? 'hse' : 'dot';
+    if(isSel) bold.push({ d:d, cls:'bold', mk:'bold' }); else path(d, 'dot'+dc, dm);
+    var tgt = box['out:'+o.key] || box['x:'+o.key];
+    if(tgt){ var dd = 'M'+flN(ob.r + 1)+' '+flN(ob.cy)+' L'+flN(tgt.l - 2)+' '+flN(tgt.cy);
+      if(isSel && !o.blocked) bold.push({ d:dd, cls:'bold', mk:'bold' }); else path(dd, 'dot'+dc, dm); }
+  });
+  var first = box['s:0'] || box.end, ob2 = box['o:'+sel.key];
+  if(wide && first && ob2 && !sel.blocked){ var xm = first.l - 10;
+    bold.push({ d:flRound([[ob2.r + 1, ob2.cy], [xm, ob2.cy], [xm, first.cy], [first.l - 2, first.cy]], 12), cls:'bold', mk:'bold' }); }
+  else if(wide && first && ob2){ var xm2 = first.l - 10; path(flRound([[ob2.r + 1, ob2.cy], [xm2, ob2.cy], [xm2, first.cy], [first.l - 2, first.cy]], 12), 'dot blk', 'blk'); }
+  for(var i=0; box['s:'+i]; i++){
+    var a = box['s:'+i], b = box['s:'+(i+1)] || box.end; if(!b) break;
+    bold.push({ d:'M'+flN(a.cx)+' '+flN(a.b + 1)+' L'+flN(a.cx)+' '+flN(b.t - 2), cls:'bold step', mk:'bold' });
+  }
+  var t = 0, all = [];
+  bold.forEach(function(s){
+    var p = path(s.d, s.cls, s.mk), len = p.getTotalLength ? p.getTotalLength() : 200;
+    if(!still){ var dur = Math.max(0.18, Math.min(0.5, len / 900)); p.removeAttribute('marker-end'); p.setAttribute('class', p.getAttribute('class')+' draw'); p.style.setProperty('--len', flN(len + 2)); p.style.setProperty('--dl', t.toFixed(2)+'s'); p.style.setProperty('--du', dur.toFixed(2)+'s'); t += dur * 0.85;
+      (function(pp, mk){ pp.addEventListener('animationend', function(){ if(mk) pp.setAttribute('marker-end', 'url(#sf-'+mk+')'); }); })(p, s.mk); }
+    if(s.cls.indexOf('bold') >= 0) all.push(s.d);
+  });
+  if(all.length){ var run = flSvg('path', { d:all.join(' '), 'class':'sf-run' }, svg); run.style.setProperty('--dl', (still ? 0 : t).toFixed(2)+'s'); }
 }
 
 /* Lessons learned: the campaign's second brain */
@@ -2872,7 +3494,7 @@ V.about = function(){
 
 /* Event wiring and start-up */
 function openPouPrint(){ var c = $('.g-8-4 > .card'); if(!c) return; openModal('Pre-job brief', '<div class="brief-sheet">'+c.innerHTML+'</div>', '<button class="btn" data-act="close">Close</button>'+printBtn()+'', true); }
-function refreshOptions(){ var c = $('#opt-card'); if(c) c.innerHTML = optionsTableHTML(); var d = $('#opt-detail'); if(d) d.innerHTML = optionDetailHTML(); }
+function refreshOptions(){ var c = $('#opt-card'); if(c) c.innerHTML = optionsTableHTML(); var d = $('#opt-detail'); if(d) d.innerHTML = optionDetailHTML(); drawSimFlow(true); drawUpdFlow(); }
 var wTimer = null;
 document.addEventListener('click', function(e){
   var g = e.target.closest('[data-go]');
@@ -2891,6 +3513,8 @@ document.addEventListener('click', function(e){
       toast('Custom event simulated: '+esc(S.sim.custom.title.replace('Custom: ',''))); break;
     case 'opt': selectOption(k); break;
     case 'gmode': S.sim.mode = v; drawSimGantt(); break;
+    case 'ufmode': S.sim.ufmode = v; drawUpdFlow(); break;
+    case 'ufexpand': var uc = $('#uflow-card'); if(!uc) break; if(uc.classList.contains('expanded')) closeAll(); else { uc.classList.add('expanded'); $('#scrim').classList.add('on'); S.sim.ufx = true; drawUpdFlow(); } break;
     case 'sort': S.sim.sort = v; refreshOptions(); break;
     case 'weights': S.sim.showW = !S.sim.showW; refreshOptions(); break;
     case 'showall': S.sim.showAll = !S.sim.showAll; refreshOptions(); break;
@@ -2946,7 +3570,7 @@ document.addEventListener('input', function(e){
       var d = $('#opt-detail'); if(d) d.innerHTML = optionDetailHTML();
       var tmp = document.createElement('div'); tmp.innerHTML = optionsTableHTML();
       var nw = tmp.querySelector('.tbl-wrap'), ow = $('#opt-card .tbl-wrap'); if(nw && ow) ow.parentNode.replaceChild(nw, ow);
-      var ns = tmp.querySelector('.card-h .sub'), os = $('#opt-card .card-h .sub'); if(ns && os) os.innerHTML = ns.innerHTML; }, 120); return; }
+      var ns = tmp.querySelector('.card-h .sub'), os = $('#opt-card .card-h .sub'); if(ns && os) os.innerHTML = ns.innerHTML; drawSimFlow(true); drawUpdFlow(); }, 120); return; }
   if(t.getAttribute('data-act')==='lldupe'){ clearTimeout(wTimer); wTimer = setTimeout(checkDupes, 200); return; }
 });
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAll(); });
