@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Campaign Digital Twin · mock-up v3</title>
+<title>Campaign Digital Twin · mock-up v4</title>
 <meta name="description" content="A digital twin with a memory: simulates every disruption in a multi-vessel installation campaign and remembers every lesson. Mock-up with illustrative data.">
 <style>
 :root{
@@ -577,7 +577,7 @@ label.f .hint{ display:block; font-weight:400; color:var(--ink-3); font-size:11.
   <aside class="side">
     <div class="brand">
       <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true"><rect x="2" y="7" width="19" height="19" rx="6" fill="#8F86DB"/><rect x="13" y="4" width="19" height="19" rx="6" fill="#7FC8B4" fill-opacity=".88"/><circle cx="17" cy="15.5" r="3.2" fill="#fff"/></svg>
-      <div><div class="brand-name">Campaign Digital Twin</div><div class="brand-sub">Mock-up v3 · illustrative data</div></div>
+      <div><div class="brand-name">Campaign Digital Twin</div><div class="brand-sub">Mock-up v4 · illustrative data</div></div>
     </div>
     <nav class="nav" id="nav"></nav>
     <div class="side-foot"><b>Decision support.</b> People decide; the twin shows the consequences and the experience behind each option.<div style="margin-top:10px"><button class="btn sm" data-act="reset">Reset demo</button></div></div>
@@ -1918,7 +1918,7 @@ var ICON = {
 function ic(n, cls){ return '<svg viewBox="0 0 24 24"'+(cls ? ' class="'+cls+'"' : '')+'>'+(ICON[n]||'')+'</svg>'; }
 
 // ---------------------------------------------------------------- state & persistence
-var KEY = 'cdt-mockup-v3';
+var KEY = 'cdt-mockup-v4';   // v4: structures-first plan and real fleet roles; older saved states are not reused
 var S = { view:'overview', assets:clone(C.DEFAULT_ASSETS), lessons:clone(DT.LESSONS), decisions:[], weights:clone(C.DEFAULT_WEIGHTS), seeded:false,
   sim:{ evId:'E3', ev:null, A:null, sel:null, mode:'option', sort:'score', showAll:false, showW:false,
         b:{ asset:'CSV1', mode:'crane', task:'FL', hours:36, onsetH:12, probability:10, cnq:0, gateDay:21 } },
@@ -2120,7 +2120,7 @@ function ganttModel(E, opts){
       bars.push({ k:ro.asset+':'+ev.task+':stop', lane:ro.asset, task:ev.task, overlay:true, from:t0, to:t0 + stopLen, cls:cls, label:lbl, tip:'<b>'+esc(ev.short || ev.title)+'</b><br>'+lbl+' from '+dlab(t0) }); });
   }
   var marks = [], B = C.baseline();
-  for(var g in plan.gates){ var G2 = plan.gates[g]; if(g==='hlvWindow') continue; marks.push({ k:'gate:'+g, day:G2.day, label:({ precomSpread:'Precom spread ready', hostWindow:'Host window' }[g]||G2.label)+' D'+C.fmtDay(G2.day), top: g==='hostWindow' ? 18 : 2 }); }
+  for(var g in plan.gates){ var G2 = plan.gates[g]; if(g==='hlvWindow') continue; marks.push({ k:'gate:'+g, day:G2.day, label:(G2.short||G2.label)+' D'+C.fmtDay(G2.day), top: g==='hostWindow' ? 18 : 2 }); }
   marks.push({ k:'contract', day:C.CONTRACT_HANDOVER, cls:'contract', label:'Contract handover D'+C.CONTRACT_HANDOVER, top:34 });
   if(ev && opts.mode !== 'baseline' && opts.A) marks.push({ k:'event', day:opts.A.t0, cls:'now', label:'Event D'+C.fmtDay(opts.A.t0), top:50 });
   var bands = [], H = C.asset('HLV');
@@ -2339,7 +2339,7 @@ V.campaignAfter = function(){
 function capsHTML(a){
   if(a.system) return '<span class="xs muted">'+esc(a.desc||'')+'</span>';
   var c = a.caps || {}, o = [];
-  if(c.crane) o.push(c.crane+' t crane'); if(c.rov) o.push(c.rov+' ROV'+(c.rov>1?'s':'')); if(c.lay) o.push('rigid lay'); if(c.carousel) o.push('carousel'); if(c.supply) o.push('cargo deck'); if(c.dp) o.push('DP'+c.dp); if(c.pob) o.push(c.pob+' POB');
+  if(c.crane) o.push(c.crane+' t crane'); if(c.rov) o.push(c.rov+' ROV'+(c.rov>1?'s':'')); if(c.lay) o.push('rigid lay'); if(c.carousel) o.push('carousel'); if(c.supply) o.push('cargo deck'); if(c.deck) o.push('structures deck'); if(c.dp) o.push('DP'+c.dp); if(c.pob) o.push(c.pob+' POB');
   return o.map(function(x){ return '<span class="chip line" style="margin:0 3px 3px 0">'+esc(x)+'</span>'; }).join('');
 }
 function taskDrawer(id){
@@ -3469,7 +3469,7 @@ function snapshotFor(A, key){
 }
 function seedDecisions(){
   if(S.seeded || S.decisions.length) { S.seeded = true; return; }
-  [['E5','Project manager','Air-freight approved; ROV crew used the wait for metrology at the manifold.','2027-04-11 08:10', true], ['E2','Offshore manager','Spare TMS on board; ROV-2 surveyed the laid flowline while ROV-1 was repaired.','2027-04-23 07:20', false]].forEach(function(x, i){
+  [['E5','Project manager','Air-freight approved; the ROV crew ran the as-built survey of the laid flowline during the wait.','2027-04-11 08:10', true], ['E2','Offshore manager','Spare TMS on board; ROV-2 surveyed the laid flowline while ROV-1 was repaired.','2027-04-14 13:10', false]].forEach(function(x, i){
     var A = C.analyse(C.scenarioById(x[0]), { weights:S.weights, lessons:S.lessons }); if(!A.recommended) return;
     var snap = snapshotFor(A, A.recommended); snap.at = x[3];
     S.decisions.push({ id:'DEC-00'+(i+1), at:x[3], by:x[1], rationale:x[2], rca:x[4], push:true, snap:snap, lessonDraft:null, sample:true });
@@ -3503,9 +3503,9 @@ V.about = function(){
     + '<div class="callout lav">'+ic('target')+'<div><b>Learning from coded history:</b> repair durations and event probabilities estimated from coded ops logs as campaigns accumulate.</div></div>'
     + '</div></div></div>';
   h += '<div class="road mt16">'
-    + '<div class="s"><div class="ph">Pilot · 6–9 months</div><b>One multi-vessel campaign</b><ul><li>Decision screens and dashboards on the company’s approved stack; engine and ML in its own cloud</li><li>Company lessons template plus a few twin tags</li><li>Go / refine / stop gate on measured KPIs</li></ul></div>'
-    + '<div class="s"><div class="ph">Scale · year 2</div><b>More campaigns, less manual input</b><ul><li>Schedule import and same-day updates</li><li>Ops-log codes read automatically</li><li>Repair times and probabilities learned from history</li></ul></div>'
-    + '<div class="s"><div class="ph">Portfolio · year 3</div><b>From campaigns to the fleet</b><ul><li>Fleet-level view of shared vessels and spares</li><li>Tender contingency priced from recorded losses</li><li>Equipment failure signals feed the risk events</li></ul></div>'
+    + '<div class="s"><div class="ph">Year 1 · 12-month pilot</div><b>Replay one completed campaign</b><ul><li>Months 1–7: define and build on the company’s approved stack; engine and ML in its own cloud (AWS or Azure)</li><li>Company lessons template plus the twin’s tags</li><li>Months 7–12: replay the campaign; gate at month 12: go, refine or stop on measured KPIs</li></ul></div>'
+    + '<div class="s"><div class="ph">Year 2 · only on a go</div><b>More campaigns, then live advisory</b><ul><li>Months 13–18: more completed campaigns; ML tested against the rules-only twin</li><li>Months 19–24: advisory on one live campaign</li><li>Gate at month 24</li></ul></div>'
+    + '<div class="s"><div class="ph">Later · portfolio</div><b>From campaigns to the fleet</b><ul><li>Fleet-level view of shared vessels and spares</li><li>Tender contingency priced from recorded losses</li><li>Equipment failure signals feed the risk events</li></ul></div>'
     + '</div>';
   h += '<div class="card mt16"><div class="small muted">Mock-up with illustrative data. Campaign, vessels, rates, events and lessons are generic examples built for discussion; they do not describe any real project, client or company.</div></div>';
   return h;
