@@ -605,18 +605,20 @@ function r6(x){ return Math.round(x*1e6)/1e6; }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
 function uniq(a){ return a.filter(function(x,i){ return a.indexOf(x)===i; }); }
 
+// lower-case the first letter only, so acronyms (PLEM, XT, PSV) keep their capitals
+function lc1(t){ t = String(t||''); return (t.length > 1 && t[1] === t[1].toUpperCase() && /[A-Z]/.test(t[1])) ? t : t.charAt(0).toLowerCase() + t.slice(1); }
 // ---------------------------------------------------------------- reference lists
 var ASSET_TYPES = {
   CSV:{ label:'Construction support vessel', cat:'vessel' }, HLV:{ label:'Heavy lift vessel', cat:'vessel' },
   PLV:{ label:'Pipelay vessel', cat:'vessel' }, DSV:{ label:'Diving support vessel', cat:'vessel' },
   PSV:{ label:'Platform supply vessel', cat:'vessel' }, FCB:{ label:'Fast crew boat', cat:'vessel' },
-  AHT:{ label:'Anchor handling tug', cat:'vessel' }, OTHERV:{ label:'Other vessel', cat:'vessel' },
+  AHT:{ label:'Anchor handling tug', cat:'vessel' }, BARGE:{ label:'Cargo barge (with tug)', cat:'vessel' }, OTHERV:{ label:'Other vessel', cat:'vessel' },
   HOST:{ label:'Host facility (FPU / platform)', cat:'system' }, BASE:{ label:'Shore / supply base', cat:'system' },
   SUPPLIER:{ label:'Supplier / vendor', cat:'system' }, ENG:{ label:'Onshore engineering & approvals', cat:'system' },
   OTHERS:{ label:'Other connected system', cat:'system' }
 };
 var CONTRACTS = { owned:'Owned', term:'Term charter', window:'Charter, fixed window', calloff:'Call-off agreement', spot:'Spot charter', none:'Connected system' };
-var CAP_LABELS = { crane:'Crane (t)', rov:'Work-class ROVs', lay:'Rigid-lay spread', carousel:'Umbilical carousel', supply:'Cargo deck (supply)', pob:'Persons on board', dp:'DP class' };
+var CAP_LABELS = { deck:'Cargo barge deck', crane:'Crane (t)', rov:'Work-class ROVs', lay:'Rigid-lay spread', carousel:'Umbilical carousel', supply:'Cargo deck (supply)', pob:'Persons on board', dp:'DP class' };
 
 var EQUIPMENT = {
   crane:{ label:'crane', cap:'crane' }, 'ar-winch':{ label:'A&R winch', cap:'lay' }, tensioner:{ label:'tensioner', cap:'lay' },
@@ -637,26 +639,28 @@ var CODES = {
   'D.1':'Vessel / DP / propulsion breakdown', 'D.2':'ROV breakdown', 'D.3':'Crane, A&R or lay-equipment breakdown', 'D.4':'Rework', 'D.5':'Procedure / MOC gap'
 };
 var TASK_TYPES = { mobilisation:'Mobilisation', survey:'Survey', pipelay:'Pipelay', 'heavy-lift':'Heavy lift', umbilical:'Umbilical lay', precom:'Pre-commissioning',
-  'flying-leads':'Flying leads', 'tie-in':'Tie-in', 'hook-up':'Hook-up', commissioning:'Commissioning' };
+  'flying-leads':'Flying leads', 'tie-in':'Tie-in', 'hook-up':'Hook-up', commissioning:'Commissioning', transport:'Transport', supply:'Supply run' };
 
 // ---------------------------------------------------------------- asset registry (editable)
 var DEFAULT_ASSETS = [
   { id:'CSV1', name:'CSV-1', type:'CSV', contract:'owned', rate:250000, caps:{ crane:250, rov:2, lay:true, carousel:true, dp:3, pob:120 },
-    desc:'Owned construction support vessel: rigid-lay spread (A&R winch, tensioner), umbilical carousel, 2 work-class ROVs, 250 t AHC crane, DP3.' },
-  { id:'CSV2', name:'CSV-2', type:'CSV', contract:'calloff', rate:280000, mobLead:3, demob:2, mobFee:0, caps:{ crane:250, rov:2, carousel:true, dp:2, pob:100 },
-    desc:'Call-off construction vessel on a standby agreement: 2 work-class ROVs, 250 t AHC crane, carousel, DP2. No rigid-lay spread. 3-day mobilisation.' },
-  { id:'HLV', name:'HLV', type:'HLV', contract:'window', rate:320000, minCharter:3, window:{ open:14, latestStart:20, next:30, remob:250000 }, caps:{ crane:800, rov:1, dp:3, pob:150 },
-    desc:'Chartered heavy lift vessel, 800 t crane. Fixed window: on hire from Day 14, must start by Day 20 or it leaves; next window Day 30 with a re-mobilisation fee.' },
+    desc:'Owned construction support vessel: rigid-lay spread (A&R winch, tensioner), umbilical carousel, 2 work-class ROVs, 250 t AHC crane, DP3. Lays the flowline and umbilical, ties in, installs the flying leads and runs pre-commissioning.' },
+  { id:'CSV2', name:'CSV-2', type:'CSV', contract:'term', rate:280000, mobLead:3, caps:{ crane:250, rov:2, carousel:true, dp:2, pob:100 },
+    desc:'Chartered construction vessel: 250 t AHC crane, 2 work-class ROVs, carousel, DP2. Installs the manifold, PLEM and XTs from the cargo barge, then is released; 3 days to mobilise back. No rigid-lay spread.' },
+  { id:'HLV', name:'HLV', type:'HLV', contract:'window', rate:320000, minCharter:3, window:{ open:2, latestStart:6, next:16, remob:250000 }, caps:{ crane:800, rov:1, dp:3, pob:150 },
+    desc:'Chartered heavy lift vessel: brings the flowline reels and the umbilical to the field and transfers them to CSV-1 with its 800 t crane. Fixed window: on hire from Day 2, must start by Day 6 or it leaves; next window Day 16 with a re-mobilisation fee.' },
+  { id:'BARGE', name:'Cargo barge', type:'BARGE', contract:'term', rate:40000, caps:{ deck:true },
+    desc:'Cargo barge with tug: brings the manifold, PLEM and XTs from the fabrication yard to the field. CSV-2 lifts them off its deck.' },
   { id:'PSV', name:'PSV', type:'PSV', contract:'term', rate:35000, offhireLoss:2, remob:20000, caps:{ supply:true, dp:2, pob:20 },
-    desc:'Chartered platform supply vessel: pipe and basket supply, pre-commissioning spread deck, field standby.' },
+    desc:'Chartered platform supply vessel: shore base to field runs with containers, flying leads, pre-commissioning and commissioning equipment.' },
   { id:'FCB', name:'FCB', type:'FCB', contract:'term', rate:12000, offhireLoss:1, remob:5000, caps:{ pob:60 },
-    desc:'Chartered fast crew boat: crew changes, urgent spares, commissioning team shuttle.' },
+    desc:'Chartered fast crew boat: crew transfers (crew changes, pre-commissioning and commissioning teams) and urgent spares.' },
   { id:'PSV2', name:'Spot PSV', type:'PSV', contract:'spot', rate:45000, mobLead:1, demob:0.5, mobFee:15000, caps:{ supply:true, dp:2, pob:20 },
     desc:'Spot-market supply vessel under a framework agreement: 1-day call-out, used only if a supply vessel is lost.' },
   { id:'HOST', name:'Host FPU', type:'HOST', contract:'none', rate:0, system:true,
     desc:'Client host facility: permits-to-work, valve operations, acceptance of each hook-up step, commissioning window.' },
   { id:'BASE', name:'Shore base', type:'BASE', contract:'none', rate:0, system:true,
-    desc:'Supply base: load-out, critical-spares stock, pre-commissioning spread and chemicals, customs clearance.' }
+    desc:'Supply base: load-out, critical-spares stock, flying leads, pre-commissioning and commissioning equipment, customs clearance.' }
 ];
 var ASSETS = {}, ORDER = [];
 function setAssets(list){
@@ -687,14 +691,15 @@ function fit(needs, caps){
   if(needs.rov && !((caps.rov||0) >= needs.rov)){ r.ok = false; r.reasons.push(needs.rov>1 ? 'Needs '+needs.rov+' work-class ROVs (dual-ROV operation)' : 'No work-class ROV'); }
   if(needs.lay && !caps.lay){ r.ok = false; r.reasons.push('No rigid-lay spread (A&R winch, tensioner)'); }
   if(needs.carousel && !caps.carousel){ r.ok = false; r.reasons.push('No umbilical carousel'); }
-  if(needs.supply && !caps.supply){ r.ok = false; r.reasons.push('No cargo deck for pipe and baskets (not a supply vessel)'); }
+  if(needs.supply && !caps.supply){ r.ok = false; r.reasons.push('No cargo deck for supply runs (not a supply vessel)'); }
+  if(needs.deck && !caps.deck){ r.ok = false; r.reasons.push('Not a cargo barge: cannot carry the structures'); }
   if(needs.pob && !((caps.pob||0) >= needs.pob)){ r.ok = false; r.reasons.push('Accommodation below '+needs.pob+' persons'); }
   if(needs.dp && !((caps.dp||0) >= needs.dp)){ r.ok = false; r.reasons.push('DP class below DP'+needs.dp); }
   if(r.ok){
     if(needs.rov) r.checks.push((caps.rov||0)+' work-class ROV(s) (needs '+needs.rov+')');
     if(needs.lay) r.checks.push('Rigid-lay spread on board');
     if(needs.carousel) r.checks.push('Umbilical carousel on board');
-    if(needs.supply) r.checks.push('Cargo deck for pipe and baskets');
+    if(needs.supply) r.checks.push('Cargo deck for supply runs');
     if(needs.dp) r.checks.push('DP'+caps.dp+' (needs DP'+needs.dp+')');
   }
   return r;
@@ -717,76 +722,85 @@ var CREW_DAY_RATE = 25000;
 var CAMPAIGN = { name:'Field A tie-back', desc:'Two subsea trees tied back to a host FPU through a new manifold: 12 km rigid flowline, umbilical, flying leads, spools.' };
 
 var GATES = {
-  hlvWindow:    { label:'HLV charter window opens', short:'HLV window opens', day:14, task:'LIFT', asset:'HLV' },
-  precomSpread: { label:'Pre-commissioning spread and chemicals ready at the shore base', short:'Precom spread ready', day:15, task:'PRECOM', asset:'BASE' },
-  hostWindow:   { label:'Host commissioning window opens', short:'Host window opens', day:26, task:'COMM', asset:'HOST' }
+  csv1Ready:    { label:'CSV-1 released from its previous project', short:'CSV-1 available', day:2.5, task:'MOB', asset:'CSV1' },
+  hlvWindow:    { label:'HLV charter window opens', short:'HLV window opens', day:2, task:'HLVT', asset:'HLV' },
+  precomSpread: { label:'Flying leads, pre-commissioning and commissioning equipment ready at the shore base', short:'Equipment ready at base', day:16, task:'PSVR', asset:'BASE' },
+  hostWindow:   { label:'Host hook-up & commissioning window opens', short:'Host window opens', day:26, task:'HOOK', asset:'HOST' }
 };
 
 var TASKS = [
-  { id:'MOB', short:'Mobilise & load-out', name:'Mobilise at port & load-out (flying-lead baskets, tooling, spools)', type:'mobilisation', dur:2, preds:[],
+  { id:'BRG', short:'Structures transport (barge)', name:'Cargo barge tow: manifold, PLEM, XT-1 and XT-2 from the fabrication yard to the field', type:'transport', dur:2.5, preds:[],
+    roles:[ R('BARGE','Structures transport',{deck:true}) ],
+    prereq:{ equipment:'Barge sea-fastening, tug', personnel:'Tow master, marine crew', permits:'Marine warranty approval of the tow', materials:'Manifold, PLEM, XT-1, XT-2', host:'-' },
+    hold:['Sea-fastening approved by marine warranty surveyor','Tow departure approval'] },
+  { id:'HLVT', short:'Flowline & umbilical transport', name:'HLV transport of the flowline reels and the umbilical to the field, and transfer to CSV-1', type:'transport', dur:3, preds:[],
+    roles:[ R('HLV','Transport & reel transfer',{crane:300, dp:2}) ],
+    prereq:{ equipment:'HLV crane, reel-transfer rigging', personnel:'Marine crew, lift supervisor', permits:'Transport and transfer procedure approved', materials:'Flowline reels, umbilical', host:'-' },
+    hold:['Reel transfer lift plan approved','Umbilical electrical test after transfer'] },
+  { id:'MOB', short:'Mobilise & load-out', name:'Mobilise CSV-1 at port & load-out (spools, tooling, consumables)', type:'mobilisation', dur:2, preds:[],
     roles:[ R('CSV1','Load-out & sea-fastening'), R('PSV','Load-out & supply',{supply:true}), R('BASE','Load-out quay & stores') ],
-    prereq:{ equipment:'Spread and tooling certified; sea-fastening complete', personnel:'Marine and construction crews', permits:'Marine warranty approval of sea-fastening; port clearance', materials:'Spools, flying-lead baskets, consumables', host:'-' },
+    prereq:{ equipment:'Spread and tooling certified; sea-fastening complete', personnel:'Marine and construction crews', permits:'Marine warranty approval of sea-fastening; port clearance', materials:'Spools, tooling, consumables', host:'-' },
     hold:['Marine warranty approval of sea-fastening','Load-out checklist signed'] },
-  { id:'SURV', short:'Transit & survey calibration', name:'Transit, DP field-entry trials & survey calibration at the manifold site', type:'survey', dur:2, preds:[P('MOB')],
+  { id:'SURV', short:'Transit & pre-installation survey', name:'Transit, DP field-entry trials & pre-installation survey of the structure sites', type:'survey', dur:1.5, preds:[P('MOB')],
     roles:[ R('CSV1','Survey & DP trials',{rov:1, dp:2}) ],
     prereq:{ equipment:'ROV survey sensors, DP reference systems', personnel:'Survey team', permits:'Field entry and SIMOPS plan', materials:'-', host:'500 m zone entry approval' },
-    hold:['DP field-entry trials accepted'] },
-  { id:'LAY', short:'Flowline lay', name:'Flowline lay & PLET installation (10 in, 12 km)', type:'pipelay', dur:8, preds:[P('SURV')],
-    roles:[ R('CSV1','Lay vessel',{lay:true, rov:1, dp:2}), R('PSV','Pipe supply',{supply:true}) ],
-    prereq:{ equipment:'Lay spread, A&R winch, tensioner', personnel:'Lay crew, welders, NDT', permits:'Lay procedure approved', materials:'Linepipe supply by PSV', host:'-' },
-    hold:['First-weld procedure qualification','Touchdown monitoring by ROV'] },
-  { id:'LIFT', short:'Manifold lift', name:'Manifold lift & installation (140 t)', type:'heavy-lift', dur:3, interrupt:'restart',
-    preds:[ P('LAY','preferential',{ label:'Lift the manifold in parallel with lay', short:'lift in parallel with lay', alt:'SURV', cost:30000, costLabel:'SIMOPS lift / lay assessment & HLV field-entry plan',
-      reqs:[ { label:'SIMOPS plan approved (lay + lift in the same field)', lead:2, task:'LIFT' }, { label:'Seabed preparation at the manifold site complete', after:'SURV' } ],
-      risk:{ level:'Medium', note:'SIMOPS: two DP vessels in the field; 500 m zone management' }, hazards:['SIMOPS'],
-      lesson:'Keep a pre-approved SIMOPS plan so the lift can run in parallel with lay when lay is disrupted.' }) ],
-    roles:[ R('HLV','Heavy lift',{lift:140, dp:2}) ],
-    prereq:{ equipment:'HLV crane, rigging, ROV', personnel:'Lift supervisor, riggers', permits:'Lift plan approved', materials:'Manifold and suction pile on deck', host:'HLV window Day 14 (latest start Day 20)' },
-    hold:['Lift plan approved by marine warranty surveyor','Rigging inspection certificate'],
-    note:'Planned after lay so the HLV and the lay spread are not in the field together.' },
-  { id:'UMB', short:'Umbilical lay', name:'Umbilical lay & UTA installation', type:'umbilical', dur:4.5, preds:[P('SURV'), P('LAY','resource')],
-    roles:[ R('CSV1','Umbilical lay',{carousel:true, rov:1, dp:2}) ],
-    prereq:{ equipment:'Carousel, umbilical tensioner, ROV', personnel:'Umbilical crew', permits:'Umbilical installation procedure', materials:'Umbilical, UTA', host:'-' },
-    hold:['Umbilical electrical test before overboarding'] },
-  { id:'PRECOM', short:'Pre-commissioning', name:'Flowline pre-commissioning (flood, clean, gauge, hydrotest)', type:'precom', dur:4,
-    preds:[ P('LAY'), P('LIFT','preferential',{ label:'Pre-commission in parallel with the lift', short:'precom in parallel with the lift', cost:85000, costLabel:'SIMOPS bridging ($35k) + precom crew early call-out ($50k)',
-      reqs:[ { label:'SIMOPS bridging document signed (HLV + precom)', lead:2, task:'PRECOM' }, { label:'Flooding / hydrotest procedure approved', lead:0 } ],
-      risk:{ level:'Medium', note:'SIMOPS: lifting while the line is pressurised; exclusion zone required' }, hazards:['SIMOPS'],
-      lesson:'Pre-approve precom readiness (spread, procedure, SIMOPS) so precom can run in parallel with the lift.' }) ],
-    roles:[ R('PSV','Precom spread deck',{supply:true}), R('FCB','Precom crew shuttle',{pob:10}) ],
-    prereq:{ equipment:'Pumps, pigs, gauge plates', personnel:'Precom technicians', permits:'Flooding / hydrotest procedure', materials:'Filtered seawater, biocide, O2 scavenger, dye', host:'-' },
-    hold:['Hydrotest witnessed by client','Gauge plate inspection'],
-    note:'Technically precom needs only the laid line. Lift before precom is a planning (preferential) link.' },
-  { id:'FL', short:'Flying leads & electrical tests', name:'Flying-lead installation & umbilical electrical tests (dual ROV)', type:'flying-leads', dur:4, preds:[P('UMB'), P('LIFT')],
-    roles:[ R('CSV1','Flying-lead installation',{rov:2, dp:2, crane:10}) ],
-    prereq:{ equipment:'2 ROVs, flying-lead deployment baskets, torque tools', personnel:'ROV pilots, electrical test engineers', permits:'Flying-lead installation procedure', materials:'Electrical and hydraulic flying leads', host:'Umbilical powered for electrical tests' },
-    hold:['Electrical test after each flying lead','Visual inspection of each connection'] },
-  { id:'TIEIN', short:'Spool tie-in & leak tests', name:'Spool tie-in & leak tests (metrology, dual ROV)', type:'tie-in', dur:4, preds:[P('PRECOM'), P('FL','resource')],
+    hold:['DP field-entry trials accepted','Structure sites clear of debris'] },
+  { id:'STR', short:'Manifold, PLEM & XT installation', name:'Manifold (140 t), PLEM, XT-1 and XT-2 installation from the cargo barge (CSV-2 crane, ROV)', type:'heavy-lift', dur:3.5, interrupt:'restart', preds:[P('BRG')],
+    roles:[ R('CSV2','Structure installation',{lift:140, rov:1, dp:2}), R('BARGE','Structures on deck') ],
+    prereq:{ equipment:'250 t AHC crane, rigging, ROV', personnel:'Lift supervisor, riggers, ROV pilots', permits:'Lift plan for each structure approved', materials:'Manifold, PLEM and XTs on the barge', host:'-' },
+    hold:['Lift plans approved by marine warranty surveyor','Landing and orientation verified by ROV'],
+    note:'Structures go in first so no lifts are made over laid lines.' },
+  { id:'LAY', short:'Flowline lay', name:'Flowline lay with in-line PLETs (10 in, 12 km)', type:'pipelay', dur:6.5,
+    preds:[ P('SURV'), P('HLVT'), P('STR','preferential',{ label:'Lay before the structures are installed', short:'lay before the structures', cost:30000, costLabel:'SIMOPS assessment & dropped-object plan',
+      reqs:[ { label:'SIMOPS plan approved (CSV-1 lay and CSV-2 lifts in the same field)', lead:2, task:'LAY' }, { label:'Dropped-object corridor agreed: no lifts over the laid line', lead:0 } ],
+      risk:{ level:'Medium', note:'SIMOPS: two DP vessels in the field; structures lifted near the laid flowline (dropped objects)' }, hazards:['SIMOPS'],
+      lesson:'Keep a pre-approved SIMOPS and dropped-object plan so lay can start before the structures when their installation is delayed.' }) ],
+    roles:[ R('CSV1','Lay vessel',{lay:true, rov:1, dp:2}) ],
+    prereq:{ equipment:'Lay spread, A&R winch, tensioner', personnel:'Lay crew, welders, NDT', permits:'Lay procedure approved', materials:'Flowline reels transferred from the HLV', host:'-' },
+    hold:['First-weld procedure qualification','Touchdown monitoring by ROV'],
+    note:'Technically lay needs only the reels on board. Structures before lay is a planning (preferential) link: no lifts over laid lines.' },
+  { id:'TIEIN', short:'Spool tie-in & metrology', name:'Spool tie-in: metrology, spool installation & connection (dual ROV)', type:'tie-in', dur:2.5, preds:[P('LAY'), P('STR')],
     roles:[ R('CSV1','Tie-in',{rov:2, dp:2, crane:25}) ],
-    prereq:{ equipment:'2 ROVs (spool landing is a dual-ROV operation), metrology kit, spool rigging', personnel:'ROV pilots, tie-in engineers', permits:'Tie-in procedure, hydrotest certificate', materials:'Spools, seals', host:'-' },
-    hold:['Leak test hold point (client witness)','Metrology report approved'] },
-  { id:'HOOK', short:'XT hook-up with host', name:'Final connection at XT-1 / XT-2 & pressure monitoring with the host', type:'hook-up', dur:1.5, preds:[P('TIEIN')],
-    roles:[ R('CSV1','ROV support',{rov:1, dp:2}), R('HOST','Valve operations & acceptance') ],
-    prereq:{ equipment:'ROV, torque tool', personnel:'ROV pilots', permits:'Host permit-to-work for each valve step', materials:'-', host:'Host acceptance of each step' },
-    hold:['Host acceptance after each pressure monitoring'] },
-  { id:'COMM', short:'XT commissioning', name:'XT commissioning & start-up support', type:'commissioning', dur:3, preds:[P('HOOK')], lane:'HOST',
-    roles:[ R('FCB','Commissioning crew shuttle',{pob:10}), R('HOST','Commissioning window') ],
-    prereq:{ equipment:'Commissioning spread', personnel:'Commissioning team with host operators', permits:'Host permit-to-work', materials:'MEG, nitrogen', host:'Host commissioning window (Day 26)' },
-    hold:['Valve signature tests','Start-up readiness review'] },
-  { id:'ASB', short:'As-built & demob', name:'As-built survey & demobilisation', type:'survey', dur:1.5, preds:[P('HOOK')],
+    prereq:{ equipment:'2 ROVs (spool landing is a dual-ROV operation), metrology kit, spool rigging', personnel:'ROV pilots, tie-in engineers', permits:'Tie-in procedure', materials:'Spools, seals', host:'-' },
+    hold:['Metrology report approved','Connection torque records signed'] },
+  { id:'UMB', short:'Umbilical lay', name:'Umbilical lay with UTA and SDU installation', type:'umbilical', dur:4, preds:[P('HLVT'), P('TIEIN','resource')],
+    roles:[ R('CSV1','Umbilical lay',{carousel:true, rov:1, dp:2}) ],
+    prereq:{ equipment:'Carousel, umbilical tensioner, ROV', personnel:'Umbilical crew', permits:'Umbilical installation procedure', materials:'Umbilical (transferred from the HLV), UTA, SDU', host:'-' },
+    hold:['Umbilical electrical test before overboarding'] },
+  { id:'PSVR', short:'Supply run: flying leads & equipment', name:'PSV run from the shore base: containers, flying leads, pre-commissioning and commissioning equipment', type:'supply', dur:1.5, preds:[],
+    roles:[ R('PSV','Supply run',{supply:true}), R('BASE','Load-out quay & stores') ],
+    prereq:{ equipment:'Deck space, sea-fastening', personnel:'Base load-out crew', permits:'Customs clearance of the pre-commissioning chemicals', materials:'Flying leads, containers, precom pumps and chemicals, commissioning equipment', host:'-' },
+    hold:['Load-out checklist signed'] },
+  { id:'FL', short:'Flying leads & electrical tests', name:'Flying-lead installation & umbilical electrical tests (dual ROV)', type:'flying-leads', dur:3, preds:[P('UMB'), P('STR'), P('PSVR'), P('TIEIN','resource')],
+    roles:[ R('CSV1','Flying-lead installation',{rov:2, dp:2, crane:10}) ],
+    prereq:{ equipment:'2 ROVs, flying-lead deployment baskets, torque tools', personnel:'ROV pilots, electrical test engineers', permits:'Flying-lead installation procedure', materials:'Electrical and hydraulic flying leads (delivered by the PSV)', host:'Umbilical powered for electrical tests' },
+    hold:['Electrical test after each flying lead','Visual inspection of each connection'] },
+  { id:'PRECOM', short:'Pre-commissioning', name:'Pre-commissioning from CSV-1: flood, clean, gauge, hydrotest and leak test of the flowline system', type:'precom', dur:3, preds:[P('TIEIN'), P('PSVR'), P('FL','resource')],
+    roles:[ R('CSV1','Pre-commissioning spread on deck',{rov:1, dp:2}), R('FCB','Precom crew transfer',{pob:10}) ],
+    prereq:{ equipment:'Pumps, pigs, gauge plates (delivered by the PSV)', personnel:'Precom technicians (transferred by the FCB)', permits:'Flooding / hydrotest procedure', materials:'Filtered seawater, biocide, O2 scavenger, dye', host:'-' },
+    hold:['System hydrotest and leak test witnessed by client','Gauge plate inspection'] },
+  { id:'ASB', short:'As-built survey', name:'As-built survey of structures, flowline, spools & umbilical (ROV)', type:'survey', dur:1, preds:[P('PRECOM','resource')],
     roles:[ R('CSV1','As-built survey',{rov:1}) ],
     prereq:{ equipment:'ROV survey', personnel:'Survey team', permits:'-', materials:'-', host:'-' },
-    hold:['As-built data accepted'] }
+    hold:['As-built data accepted'] },
+  { id:'HOOK', short:'XT hook-up with host', name:'Final connection at XT-1 / XT-2 & pressure monitoring with the host', type:'hook-up', dur:1, preds:[P('PRECOM'), P('FL'), P('ASB','resource')],
+    roles:[ R('CSV1','ROV support',{rov:1, dp:2}), R('HOST','Valve operations & acceptance') ],
+    prereq:{ equipment:'ROV, torque tool', personnel:'ROV pilots', permits:'Host permit-to-work for each valve step', materials:'-', host:'Host window open (from Day 26); host acceptance of each step' },
+    hold:['Host acceptance after each pressure monitoring'] },
+  { id:'COMM', short:'XT commissioning', name:'XT commissioning & start-up support', type:'commissioning', dur:2.5, preds:[P('HOOK')], lane:'HOST',
+    roles:[ R('FCB','Commissioning crew transfer',{pob:10}), R('HOST','Commissioning window') ],
+    prereq:{ equipment:'Commissioning equipment (delivered by the PSV)', personnel:'Commissioning team with host operators (transferred by the FCB)', permits:'Host permit-to-work', materials:'MEG, nitrogen', host:'Host window open (from Day 26)' },
+    hold:['Valve signature tests','Start-up readiness review'] }
 ];
 
 // Filler work library: keep-busy work that pulls part of a later task forward.
 var FILLERS = [
   { id:'FL1', short:'as-built survey', name:'As-built survey of the laid flowline (ROV)', asset:'CSV1', needs:{rov:1}, after:['LAY'], target:'ASB', max:1, cost:15000, costLabel:'Survey data processing (onshore)', crew:'Survey team (on board)' },
-  { id:'FL2', short:'hub metrology', name:'Metrology at the manifold and PLET hubs (ROV)', asset:'CSV1', needs:{rov:1}, after:['LAY','LIFT'], target:'TIEIN', max:0.75, cost:20000, costLabel:'Metrology processing & spool QA', crew:'ROV pilots + metrology engineer (on board)' },
+  { id:'FL2', short:'hub metrology', name:'Metrology at the manifold and PLET hubs (ROV)', asset:'CSV1', needs:{rov:1}, after:['LAY','STR'], target:'TIEIN', max:0.75, cost:20000, costLabel:'Metrology processing & spool QA', crew:'ROV pilots + metrology engineer (on board)' },
   { id:'FL3', short:'umbilical route survey', name:'Umbilical route survey & boulder clearance (ROV)', asset:'CSV1', needs:{rov:1}, after:['SURV'], target:'UMB', max:0.5, cost:10000, costLabel:'Survey data processing (onshore)', crew:'Survey team (on board)' },
-  { id:'FL4', short:'early precom load-out', name:'Load the pre-commissioning spread onto the PSV early', asset:'PSV', needs:{supply:true}, after:[], gate:'precomSpread', target:'PRECOM', max:0.5, cost:5000, costLabel:'Base load-out crew overtime', crew:'Base load-out crew' },
-  { id:'FL5', short:'basket prep on deck', name:'Pre-load and test flying-lead baskets on deck', asset:'CSV1', needs:{}, after:['MOB'], target:'FL', max:0.5, cost:8000, costLabel:'Deck crew overtime', crew:'Deck crew (on board)' },
-  { id:'FL6', short:'demob prep on deck', name:'Demobilisation prep on deck (sea-fastening, basket recovery)', asset:'CSV1', needs:{}, after:['TIEIN'], target:'ASB', max:0.5, cost:5000, costLabel:'Deck crew overtime', crew:'Deck crew (on board)' }
+  { id:'FL4', short:'early PSV load-out', name:'Load the PSV early with the equipment that is ready', asset:'PSV', needs:{supply:true}, after:[], gate:'precomSpread', target:'PSVR', max:0.5, cost:5000, costLabel:'Base load-out crew overtime', crew:'Base load-out crew' },
+  { id:'FL5', short:'basket prep on deck', name:'Pre-load and test flying-lead baskets on deck', asset:'CSV1', needs:{}, after:['PSVR'], target:'FL', max:0.5, cost:8000, costLabel:'Deck crew overtime', crew:'Deck crew (on board)' },
+  { id:'FL6', short:'survey prep on deck', name:'As-built survey prep on deck (ROV sensor calibration, run plan)', asset:'CSV1', needs:{}, after:['TIEIN'], target:'ASB', max:0.5, cost:5000, costLabel:'Deck crew overtime', crew:'Survey team (on board)' },
 ];
 
 // ---------------------------------------------------------------- plan helpers
@@ -888,11 +902,14 @@ function assetStats(plan, res, lost){
       s.start = list[0].from; s.end = Math.max.apply(null, list.map(function(i){ return i.to; }));
       var blocks = union(list.map(function(i){ return [i.from, i.to]; }));
       for(var k=1;k<blocks.length;k++) s.gaps.push([blocks[k-1][1], blocks[k][0]]);
+      var mobStarts = list.filter(function(i){ return i.kind==='mob'; }).map(function(i){ return i.from; }), released = 0;
+      s.gaps = s.gaps.filter(function(g){ var rel = mobStarts.some(function(m){ return Math.abs(m - g[1]) < 1e-6; }); if(rel) released += g[1] - g[0]; return !rel; });
+      if(released > EPS) s.released = r6(released);
       if(A.window && !lost[id] && A.window.open < s.start - EPS){ s.gaps.unshift([A.window.open, s.start]); s.windowStandby = r6(s.start - A.window.open); s.start = A.window.open; }
       union(list.filter(function(i){ return i.kind==='work'; }).map(function(i){ return [i.from, i.to]; })).forEach(function(b){ s.busy += b[1]-b[0]; });
       list.filter(function(i){ return i.kind==='mob'; }).forEach(function(m){ s.mob += m.to - m.from; });
       if(A.demob && A.contract !== 'owned' && (A.contract==='calloff' || A.contract==='spot')){ s.demob = A.demob; s.end = r6(s.end + A.demob); }
-      s.days = r6(s.end - s.start); s.busy = r6(s.busy); s.mob = r6(s.mob);
+      s.days = r6(s.end - s.start - (s.released || 0)); s.busy = r6(s.busy); s.mob = r6(s.mob);
       if(A.minCharter && s.days < A.minCharter - EPS){ s.minPad = r6(A.minCharter - s.days); s.days = A.minCharter; }
       s.idle = r6(Math.max(0, s.days - s.busy - s.mob - (s.demob||0)));
     }
@@ -937,9 +954,10 @@ function evaluate(plan, baseStats){
 function baseline(){
   if(CACHE.baseline) return CACHE.baseline;
   var p = basePlan(), e = evaluate(p); e.baseStats = e.stats;
-  var peak = 0, days = Math.ceil(e.finish);
-  for(var d=0; d<days; d++){ var day = 0; ORDER.forEach(function(v){ var s = e.stats[v]; if(s.used && d + 0.5 >= s.start && d + 0.5 < s.end) day += ASSETS[v].rate||0; }); peak = Math.max(peak, day); }
-  e.peakSpread = peak;
+  var peak = 0, days = Math.ceil(e.finish), pk0 = 0, pk1 = 0;
+  for(var d=0; d<days; d++){ var day = 0; ORDER.forEach(function(v){ var s = e.stats[v]; if(s.used && d + 0.5 >= s.start && d + 0.5 < s.end) day += ASSETS[v].rate||0; });
+    if(day > peak){ peak = day; pk0 = d; pk1 = d + 1; } else if(day === peak && pk1 === d){ pk1 = d + 1; } }
+  e.peakSpread = peak; e.peakDays = [pk0, pk1];
   CACHE.baseline = e;
   return e;
 }
@@ -948,12 +966,12 @@ function baseline(){
 // owner.def: who bears standby cost by default; owner.byAsset overrides.
 //   company = our cost (value destruction), client = claimable, owner = vessel owner (off-hire), weather = paid by us but excluded from pilot value
 var SCENARIOS = [
-  { id:'E1', title:'HLV crane hydraulic failure during the manifold lift', short:'HLV crane slew-pump failure', code:'D.3',
-    task:'LIFT', cause:'equipment', equipment:'crane', asset:'HLV', delayDays:6, onset:1, probability:0.12,
-    text:'Main crane slew-drive hydraulic pump fails on Day 1 of the lift. OEM repair with a part from shore: 6 days.',
+  { id:'E1', title:'CSV-2 crane hydraulic failure during the manifold installation', short:'CSV-2 crane slew-pump failure', code:'D.3',
+    task:'STR', cause:'equipment', equipment:'crane', asset:'CSV2', delayDays:6, onset:1, probability:0.12,
+    text:'CSV-2 main crane slew-drive hydraulic pump fails on Day 1 of the structure installation. OEM repair with a part from shore: 6 days.',
     cnq:[{ label:'Re-rigging & re-survey of the manifold target box', cost:60000 }],
     spare:{ days:3, freight:80000, label:'spare slew-drive hydraulic pump', short:'crane pump' },
-    owner:{ def:'company', byAsset:{ HLV:'owner' } }, recoverable:'Yes',
+    owner:{ def:'company', byAsset:{ CSV2:'owner' } }, recoverable:'Yes',
     ownerNote:'HLV standby during its own crane breakdown is off-hire (owner’s account) under the charter breakdown clause (mock assumption).' },
   { id:'E2', title:'ROV TMS fault during spool tie-in', short:'ROV-1 tether management system fault', code:'D.2',
     task:'TIEIN', cause:'equipment', equipment:'rov', asset:'CSV1', delayDays:0.5, onset:1, probability:0.20,
@@ -961,30 +979,30 @@ var SCENARIOS = [
     cnq:[{ label:'Repeat metrology check after the TMS swap', cost:15000 }], owner:{ def:'company' }, recoverable:'Yes' },
   { id:'E3', title:'A&R winch failure during flowline lay', short:'A&R winch hydraulic motor failure on CSV-1', code:'D.3',
     task:'LAY', cause:'equipment', equipment:'ar-winch', asset:'CSV1', delayDays:5, onset:4, probability:0.10,
-    text:'A&R winch hydraulic motor fails on Day 4 of lay; the pipe is laid down on the seabed. Repair: 5 days. The HLV window is fixed from Day 14.',
+    text:'A&R winch hydraulic motor fails on Day 4 of lay; the pipe is laid down on the seabed. Repair: 5 days. Tie-in, umbilical, flying leads and pre-commissioning all wait behind it.',
     cnq:[{ label:'Laydown head recovery & buckle inspection', cost:120000 }],
     spare:{ days:2, freight:60000, label:'A&R winch hydraulic motor', short:'winch motor' }, owner:{ def:'company' }, recoverable:'Yes' },
   { id:'E4', title:'Host commissioning window moves 7 days later', short:'Host shutdown re-planned', code:'S.2',
-    task:'COMM', cause:'host', asset:'HOST', gate:{ id:'hostWindow', day:33 }, onsetDay:20, probability:0.25,
-    text:'On Day 20 the host operator moves the commissioning window from Day 26 to Day 33 (topsides shutdown re-planned).',
+    task:'HOOK', cause:'host', asset:'HOST', gate:{ id:'hostWindow', day:33 }, onsetDay:20, probability:0.25,
+    text:'On Day 20 the host operator moves the hook-up and commissioning window from Day 26 to Day 33 (topsides shutdown re-planned).',
     cnq:[{ label:'Re-validation of the preserved line (nitrogen pack re-test)', cost:50000 }],
     negotiate:{ day:30, label:'Host agreement to a Day 30 window' }, owner:{ def:'client' }, recoverable:'Partial',
     ownerNote:'Host-caused standby is claimable under the interface agreement (mock): client-borne, not our value destruction. The delay is excusable for on-time delivery.' },
   { id:'E5', title:'Pre-commissioning chemicals held in customs', short:'Biocide / O2 scavenger held at customs', code:'N.1',
-    task:'PRECOM', cause:'material', equipment:'chemicals', asset:'BASE', gate:{ id:'precomSpread', day:21 }, onsetDay:10, probability:0.20,
-    text:'Chemical shipment held in customs: the pre-commissioning spread is ready on Day 21 instead of Day 15.',
+    task:'PSVR', cause:'material', equipment:'chemicals', asset:'BASE', gate:{ id:'precomSpread', day:22 }, onsetDay:10, probability:0.20,
+    text:'Chemical shipment held in customs: the PSV cargo is ready on Day 22 instead of Day 16.',
     cnq:[{ label:'Precom crew standby & re-mobilisation', cost:30000 }],
-    expedite:{ day:18, cost:120000, label:'Air-freight replacement chemicals to the shore base', short:'Air-freight the chemicals' }, owner:{ def:'company' }, recoverable:'Yes' },
-  { id:'E6', title:'Waiting on weather at the manifold lift', short:'Sea state above the lift limit for 3 days', code:'W.1',
-    task:'LIFT', cause:'weather', equipment:'crane', asset:'HLV', delayDays:3, onset:0, probability:0.30,
-    text:'Significant wave height above the HLV lift limit (2.0 m) for 3 days at the start of the lift.',
+    expedite:{ day:19, cost:120000, label:'Air-freight replacement chemicals to the shore base', short:'Air-freight the chemicals' }, owner:{ def:'company' }, recoverable:'Yes' },
+  { id:'E6', title:'Waiting on weather at the manifold installation', short:'Sea state above the lift limit for 3 days', code:'W.1',
+    task:'STR', cause:'weather', equipment:'crane', asset:'CSV2', delayDays:3, onset:0, probability:0.30,
+    text:'Significant wave height above the CSV-2 lift limit (2.0 m) for 3 days at the start of the structure installation.',
     cnq:[{ label:'Crew overtime & lift re-planning', cost:20000 }], owner:{ def:'weather' }, recoverable:'No',
     ownerNote:'Weather is tracked and paid, but excluded from pilot value: the twin does not claim to fix weather.' },
-  { id:'E7', title:'PSV main engine failure during lay', short:'Pipe supply stops: PSV engine failure', code:'D.1',
-    task:'LAY', cause:'vesselDown', equipment:'engine', asset:'PSV', delayDays:3, onset:3, probability:0.10,
-    text:'Supply vessel main engine fails on Day 3 of lay. Pipe supply stops and the lay spread waits for pipe. Repair: 3 days; PSV off-hire.',
-    cnq:[{ label:'Pipe re-sequencing & load-out re-plan', cost:20000 }], owner:{ def:'company', byAsset:{ PSV:'owner' } }, recoverable:'Yes',
-    ownerNote:'The PSV is off-hire while its own engine is repaired (owner’s account); the lay spread waiting for pipe is our cost.' },
+  { id:'E7', title:'PSV main engine failure during the supply run', short:'Supply run stops: PSV engine failure', code:'D.1',
+    task:'PSVR', cause:'vesselDown', equipment:'engine', asset:'PSV', delayDays:3, onset:0.5, probability:0.10,
+    text:'Supply vessel main engine fails half a day into the run: the flying leads and pre-commissioning equipment stop at sea. Repair: 3 days; PSV off-hire.',
+    cnq:[{ label:'Cargo transfer & load-out re-plan', cost:20000 }], owner:{ def:'company', byAsset:{ PSV:'owner' } }, recoverable:'Yes',
+    ownerNote:'The PSV is off-hire while its own engine is repaired (owner’s account); the vessels waiting for the cargo are our cost.' },
   { id:'E8', title:'Standby awaiting host instruction during hook-up', short:'Vessel on standby for host permits & instructions', code:'S.1',
     task:'HOOK', cause:'host', asset:'HOST', delayDays:0.58, onset:0.5, probability:0.35,
     text:'Valve operations at XT-1 wait for host permits and instructions: about 14 h of vessel standby (as seen in coded ops logs).',
@@ -1125,17 +1143,17 @@ function optRedundant(c){
   var A = ASSETS[ev.asset]; if(!A || A.system) return null;
   var t = c.baseTask, role = roleOf(t, ev.asset); if(!role) return null;
   if(ev.equipment==='dp'){
-    return { key:'REDUNDANT', group:'repair', uses:['dur:'+ev.task], short:'continue on degraded DP', name:'Continue subsea work on degraded DP', desc:'Carry on '+t.short.toLowerCase()+' without DP redundancy.',
+    return { key:'REDUNDANT', group:'repair', uses:['dur:'+ev.task], short:'continue on degraded DP', name:'Continue subsea work on degraded DP', desc:'Carry on '+lc1(t.short)+' without DP redundancy.',
       mods:{ durAdd:(function(){ var d={}; d[ev.task] = -ev.delayDays; return d; })() }, costs:[], risk:{ level:'High', note:'Loss of position during subsea work: ROV tether and equipment damage, dropped objects' }, hazards:['drive-off / drift-off','loss of redundancy'],
       reqs:[ { label:'Vessel operating guidelines: subsea work stops when DP redundancy is lost', blocked:true, note:'No offshore waiver' } ],
       lesson:'Operating guidelines held: no subsea work without DP redundancy.' };
   }
   if((A.caps.rov||0) < 2) return null;
   var deg = degrade(A.caps, 'rov'), f = fit(role.needs, deg), d2 = {}; d2[ev.task] = -ev.delayDays + 0.25;
-  var o = { key:'REDUNDANT', group:'repair', uses:['dur:'+ev.task], short:'continue on one ROV', name:'Continue on the remaining ROV', desc:'Carry on '+t.short.toLowerCase()+' with one ROV while ROV-1 is repaired.',
+  var o = { key:'REDUNDANT', group:'repair', uses:['dur:'+ev.task], short:'continue on one ROV', name:'Continue on the remaining ROV', desc:'Carry on '+lc1(t.short)+' with one ROV while ROV-1 is repaired.',
     mods:{ durAdd:d2 }, costs:[], risk:{ level:'High', note:'No ROV redundancy during subsea work' }, hazards:['loss of ROV redundancy'],
     reqs:[], lesson:'Single-ROV work only where the procedure allows it.' };
-  if(!f.ok) o.reqs.push({ label:'Procedure: '+t.short.toLowerCase()+' is a dual-ROV operation', blocked:true, note:'No offshore waiver' });
+  if(!f.ok) o.reqs.push({ label:'Procedure: '+lc1(t.short)+' is a dual-ROV operation', blocked:true, note:'No offshore waiver' });
   else { o.risk = { level:'Medium', note:'One ROV left; work continues slower' }; o.reqs.push({ label:'Procedure allows single-ROV work for this step', lead:0 }); }
   return o;
 }
@@ -1163,7 +1181,7 @@ function optSwaps(c){
     if(x===ev.asset) return; var X = ASSETS[x]; if(X.system || X.unavailable) return;
     var f = fit(role.needs, X.caps);
     if(!f.ok){ incompatible.push({ asset:x, name:X.name, reasons:f.reasons, kind:'incompatible' }); return; }
-    var assigned = tasksOf(c.base.plan, x).length > 0, startOff, waitNote = '';
+    var assigned = tasksOf(c.base.plan, x).length > 0 && c.impacted.stats[x] && c.impacted.stats[x].end > c.t0 + EPS, startOff, waitNote = '';   // released vessels must re-mobilise
     if(assigned){
       var busy = c.t0; c.impacted.stats[x].intervals.forEach(function(i){ if(i.kind==='work' && i.from <= c.t0 + EPS && i.to > c.t0 + EPS) busy = Math.max(busy, i.to); });
       var prep = f.hse ? 2 : 0.5; startOff = r6(Math.max(busy - c.t0, prep));
@@ -1197,7 +1215,7 @@ function optSwaps(c){
     }
     var risk = f.hse ? { level:'High', note:'Non-routine lift: '+Math.round(f.util*100)+'% crane utilisation at radius' } : { level:'Medium', note: assigned ? 'Re-sequencing an asset already in the campaign' : 'New vessel interface; bridging documents' };
     out.push({ key:(assigned ? 'SWAP_' : 'CALLOFF_')+x, group:'repair', uses:['dur:'+ev.task, 'role:'+ev.task], asset:x,
-      short:(assigned ? 'move it to '+X.name : 'call off '+X.name), name:(assigned ? 'Move the '+T.short.toLowerCase()+' to '+X.name : 'Call off '+X.name+' for the '+T.short.toLowerCase()),
+      short:(assigned ? 'move it to '+X.name : 'call off '+X.name), name:(assigned ? 'Move the '+lc1(T.short)+' to '+X.name : 'Call off '+X.name+' for the '+lc1(T.short)),
       desc:(assigned ? X.name+' takes over the '+role.role.toLowerCase()+' '+fmtD(startOff)+' after the failure'+(f.hse ? ' (lift plan needed)' : '')+'; '+F.name+' is released.'
                      : 'Mobilise '+X.name+' ('+fmtD(startOff)+' to site) to finish the '+role.role.toLowerCase()+'; '+F.name+' is released. Hire includes transit and demobilisation.'),
       mods:mods, costs:costs, risk:risk, hazards: f.hse ? ['non-routine lift','rigging transfer at sea'] : ['new vessel interface'], hseGate:f.hse || null, reqs:reqs,
@@ -1223,13 +1241,13 @@ function optPull(c){
     I.plan.tasks.forEach(function(z){ if(z.id===ev.task || z.id===u.id || !roleOf(z, ev.asset)) return;
       if(I.res.tasks[z.id].ES < c.t0 - EPS || reaches(I.plan, z.id, ev.task)) return; ap.push([z.id, ev.task, 'resource']); });
     out.push({ key:'PULL_'+u.id, group:'repair', uses:['dur:'+ev.task, 'stop:'+ev.asset], pulled:u.id, extra:extra,
-      short:u.short.toLowerCase()+' during the repair', name:'Use the repair time: '+u.short.toLowerCase()+' now',
-      desc:F.name+' does the '+u.short.toLowerCase()+' ('+fmtD(u.dur)+', no '+(EQUIPMENT[ev.equipment]||{label:'failed equipment'}).label+' needed) while it is repaired, then resumes the '+c.baseTask.short.toLowerCase()+(extra > EPS ? ' '+fmtD(extra)+' after the repair.' : '.'),
+      short:lc1(u.short)+' during the repair', name:'Use the repair time: '+lc1(u.short)+' now',
+      desc:F.name+' does the '+lc1(u.short)+' ('+fmtD(u.dur)+', no '+(EQUIPMENT[ev.equipment]||{label:'failed equipment'}).label+' needed) while it is repaired, then resumes the '+lc1(c.baseTask.short)+(extra > EPS ? ' '+fmtD(extra)+' after the repair.' : '.'),
       mods:{ snet:sn, removePred:rm, durAdd:d, addPred:ap }, costs:[{ label:'Re-planning & work-pack bridging', amount:15000 }],
       risk:{ level:'Low', note:'Planned work with equipment already on board' }, hazards:[],
-      reqs:[ { label:u.short+' work pack and procedure ready', lead:0 }, { label:'Materials for the '+u.short.toLowerCase()+' on board', lead:0 },
+      reqs:[ { label:u.short+' work pack and procedure ready', lead:0 }, { label:'Materials for the '+lc1(u.short)+' on board', lead:0 },
              { label: c.baseTask.type==='pipelay' ? 'Laid-down pipe end secured; recovery rigging ready' : c.baseTask.short+' safely suspended', lead:0 },
-             { label:'Capability check: the '+u.short.toLowerCase()+' does not need the '+(EQUIPMENT[ev.equipment]||{label:'failed equipment'}).label, lead:0 } ],
+             { label:'Capability check: the '+lc1(u.short)+' does not need the '+(EQUIPMENT[ev.equipment]||{label:'failed equipment'}).label, lead:0 } ],
       lesson:'Keep a pull-forward list per vessel: work that does not need the failed equipment.' });
   });
   return out;
@@ -1257,7 +1275,7 @@ function optFillers(c){
     if(!best) return;
     var d = {}; d[f.target] = -best.use;
     out.push({ key:'FILLER_'+f.id, group:'filler', uses:[best.w.kind==='stoppage' ? 'stop:'+f.asset : 'idle:'+f.asset+':'+best.w.from], filler:f,
-      short:'filler: '+f.short, name:'Filler: '+f.name, desc:'Use '+fmtD(best.use)+' of '+ASSETS[f.asset].name+' '+(best.w.kind==='stoppage' ? 'stoppage' : 'idle time')+' (from Day '+fmtDay(best.start)+') to do part of the '+tm[f.target].short.toLowerCase()+' early.',
+      short:'filler: '+f.short, name:'Filler: '+f.name, desc:'Use '+fmtD(best.use)+' of '+ASSETS[f.asset].name+' '+(best.w.kind==='stoppage' ? 'stoppage' : 'idle time')+' (from Day '+fmtDay(best.start)+') to do part of the '+lc1(tm[f.target].short)+' early.',
       mods:{ durAdd:d }, costs:[{ label:f.costLabel, amount:f.cost }], risk:{ level:'Low', note:'Routine work with equipment and crew already on board' }, hazards:[],
       reqs:[ { label:f.crew+' available', lead:0 }, { label:'Capability check: '+(f.needs.rov ? 'one ROV available' : f.needs.supply ? 'supply deck available' : 'deck work only, no subsea equipment needed'), lead:0 }, { label:'Work pack on file (filler library)', lead:0 } ],
       lesson:'Filler '+f.id+' used during this event: keep it in the campaign filler library.' });
@@ -1267,8 +1285,8 @@ function optFillers(c){
 function optCrew(c){
   var ev = c.ev, t = c.impactedTask; if(ev.cause==='weather' || ['precom','commissioning','mobilisation'].indexOf(t.type) < 0) return null;
   var comp = Math.min(1, ev.gate ? 1 : Math.max(0.5, ev.delayDays)), d = {}; d[t.id] = -comp;
-  return { key:'CREW', group:'crew', uses:['crew:'+t.id], short:'second crew', name:'Add a second crew to compress the '+t.short.toLowerCase(),
-    desc:'A second crew works in parallel once work resumes; compresses the '+t.short.toLowerCase()+' by '+fmtD(comp)+'.',
+  return { key:'CREW', group:'crew', uses:['crew:'+t.id], short:'second crew', name:'Add a second crew to compress the '+lc1(t.short),
+    desc:'A second crew works in parallel once work resumes; compresses the '+lc1(t.short)+' by '+fmtD(comp)+'.',
     mods:{ durAdd:d }, costs:[{ label:'Second crew '+c.baseTask.dur+' d x $'+CREW_DAY_RATE/1000+'k', amount:c.baseTask.dur*CREW_DAY_RATE }],
     risk:{ level:'Medium', note:'More people on board; fatigue and SIMOPS management' }, hazards:['additional personnel','fatigue'],
     reqs:[ { label:'Second crew available and certified', lead:1, task:t.id }, { label:'Fatigue risk assessment approved (HSE sign-off)', lead:0 }, { label:'Bed space on the support vessel', lead:0 } ],
@@ -1500,7 +1518,8 @@ function riskProfile(W, lessons){
   if(CACHE[key]) return CACHE[key];
   var list = scenarios().map(function(ev){
     var A = analyse(ev, { weights:W, lessons:lessons }), rec = A.options.filter(function(o){ return o.key===A.recommended; })[0];
-    return { ev:ev, A:A, rec:rec, wait:eventMods(ev), twin: rec ? mergeMods(eventMods(ev), rec.appliedMods) : eventMods(ev) };
+    var claim = rec && ev.recoverable !== 'No';   // weather: tracked and paid, but no recovery is claimed for it
+    return { ev:ev, A:A, rec:rec, claim:claim, wait:eventMods(ev), twin: claim ? mergeMods(eventMods(ev), rec.appliedMods) : eventMods(ev) };
   });
   var B = baseline(), n = list.length, pW = 0, pT = 0, eW = 0, eT = 0, dist = [];
   var extCache = {};
@@ -1523,7 +1542,7 @@ function riskProfile(W, lessons){
   var events = list.map(function(x){ var b = x.A.impact.buckets;
     return { id:x.ev.id, title:x.ev.title, short:x.ev.short, code:x.ev.code, p:x.ev.probability, task:x.ev.task, asset:x.ev.asset,
       daysLost:x.A.impact.daysLost, our:b.ourCost, company:b.company, client:b.client, owner:b.owner, weather:b.weather,
-      twinTotal: x.rec ? x.rec.total : b.ourCost, twinDays: x.rec ? x.rec.daysLost : x.A.impact.daysLost, rec: x.rec ? x.rec.name : 'Wait',
+      twinTotal: x.claim ? x.rec.total : b.ourCost, twinDays: x.claim ? x.rec.daysLost : x.A.impact.daysLost, rec: x.claim ? x.rec.name : (x.rec ? 'No recovery claimed (weather)' : 'Wait'),
       repeat: x.A.lessons.filter(function(m){ return m.repeat; }).length, lessons:x.A.lessons.length }; });
   var expWait = events.reduce(function(s,e){ return s + e.p*e.our; }, 0), expTwin = events.reduce(function(s,e){ return s + e.p*Math.min(e.our, e.twinTotal); }, 0);
   var out = { pOnTimeWait:pW, pOnTimeTwin:pT, expDaysWait:eW, expDaysTwin:eT, p80Wait:pct('wait',0.8), p80Twin:pct('twin',0.8), p50Wait:pct('wait',0.5), p50Twin:pct('twin',0.5),
@@ -1816,7 +1835,7 @@ var FUNCTION_USE = {
 };
 
 // Coded ops log: sample day on CSV-1 (anonymised from a real log structure).
-var OPS_DAY = { day:25, vessel:'CSV1', location:'XT-1', task:'HOOK', entries:[
+var OPS_DAY = { day:26, vessel:'CSV1', location:'XT-1', task:'HOOK', entries:[
   { from:'00:00', to:'04:43', code:'P',   text:'On location at XT-1. Supporting host valve operations; pressure monitoring on HP and MEG lines.' },
   { from:'04:43', to:'04:47', code:'P',   text:'ROV-1 out of TMS.' },
   { from:'04:47', to:'05:46', code:'S.1', text:'ROV-1 on standby at XT-1 awaiting client instruction.' },
@@ -1835,9 +1854,9 @@ var OPS_DAY = { day:25, vessel:'CSV1', location:'XT-1', task:'HOOK', entries:[
 ] };
 // 14-day coded history for CSV-1 (hours per day by code group)
 var OPS_TREND = [
-  { day:12, P:21.5, W:2.5 }, { day:13, P:24 }, { day:14, P:22, N:2 }, { day:15, P:19, D:5 }, { day:16, P:23, S:1 }, { day:17, P:18, W:6 }, { day:18, P:24 },
-  { day:19, P:20, D:2.5, N:1.5 }, { day:20, P:22.5, V:1.5 }, { day:21, P:21, S:3 }, { day:22, P:16, W:8 }, { day:23, P:23, D:1 }, { day:24, P:19.5, S:4.5 },
-  { day:25, P:9.4, S:10.03, V:1.42, D:3.15 }
+  { day:13, P:21.5, W:2.5 }, { day:14, P:24 }, { day:15, P:22, N:2 }, { day:16, P:19, D:5 }, { day:17, P:23, S:1 }, { day:18, P:18, W:6 }, { day:19, P:24 },
+  { day:20, P:20, D:2.5, N:1.5 }, { day:21, P:22.5, V:1.5 }, { day:22, P:21, S:3 }, { day:23, P:16, W:8 }, { day:24, P:23, D:1 }, { day:25, P:19.5, S:4.5 },
+  { day:26, P:9.4, S:10.03, V:1.42, D:3.15 }
 ];
 var CODE_GROUPS = [
   { k:'P', label:'Productive', desc:'Work as planned' },
@@ -2222,7 +2241,7 @@ V.overview = function(){
   h += '<div class="kpis">'
     + kpi('Baseline handover', 'Day '+C.fmtDay(B.finish), fdate(B.finish,true)+' 2027')
     + kpi('Contract handover', 'Day '+C.CONTRACT_HANDOVER, fd(C.CONTRACT_HANDOVER - B.finish)+' float')
-    + kpi('Peak fleet spread', money(B.peakSpread)+'/d', 'All on-hire assets, Day 14–16')
+    + kpi('Peak fleet spread', money(B.peakSpread)+'/d', 'All on-hire assets, Day '+B.peakDays[0]+'–'+B.peakDays[1])
     + kpi('Baseline fleet cost', money(B.assetCost), 'Owned vessel at internal day rate')
     + kpi('Expected days lost', fd(R.expDaysWait)+' → '+fd(R.expDaysTwin), 'Wait vs. twin, all risk events')
     + kpi('Ops log, last 14 days', Math.round(ot.D*10)/10+' h VD', Math.round(ot.S*10)/10+' h client standby · '+Math.round(ot.W)+' h weather')
@@ -3410,9 +3429,9 @@ function opsNotice(){
 }
 function opsLessonPrefill(k){
   if(k==='rov') return { title:'ROV TMS latch fault during recovery at XT-1 hook-up', type:'Problem', phase:'Commissioning', activity:['hook-up'], equipment:['rov'], assetType:['CSV'], cause:'equipment', code:'D.2',
-    description:'ROV-1 TMS latch failed during recovery at XT-1 (Day 25, 17:01–19:31); ROV recovered to deck for repair, ROV-2 used to finish the connection.', impactH:2.5, impactUSD:26000, severity:2, likelihood:4, source:'Ops log', usedBy:['Fleet & marine','Operations','Quality'] };
+    description:'ROV-1 TMS latch failed during recovery at XT-1 (Day 26, 17:01–19:31); ROV recovered to deck for repair, ROV-2 used to finish the connection.', impactH:2.5, impactUSD:26000, severity:2, likelihood:4, source:'Ops log', usedBy:['Fleet & marine','Operations','Quality'] };
   return { title:'Partial-turn valve operations not in the procedure: change prepared offshore again', type:'Problem', phase:'Commissioning', activity:['hook-up'], equipment:['torque-tool'], assetType:['CSV','HOST'], cause:'procedure', code:'D.5',
-    description:'Host requested partial-turn operations at XT-1 (Day 25); a change request was prepared offshore (19:31–20:10) because the procedure covers full turns only.', impactH:0.65, impactUSD:7000, severity:2, likelihood:4, source:'Ops log', usedBy:['Engineering','Operations','Quality'] };
+    description:'Host requested partial-turn operations at XT-1 (Day 26); a change request was prepared offshore (19:31–20:10) because the procedure covers full turns only.', impactH:0.65, impactUSD:7000, severity:2, likelihood:4, source:'Ops log', usedBy:['Engineering','Operations','Quality'] };
 }
 
 // ---------------------------------------------------------------- Decisions
